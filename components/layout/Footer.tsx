@@ -21,7 +21,10 @@ export default function Footer() {
           </div>
           <p className="mt-4 text-sm leading-relaxed">
             Local cabs, outstation trips and pilgrimage tour packages based in
-            Nashik, Maharashtra.
+            CBD Belapur, Navi Mumbai.
+          </p>
+          <p className="mt-3 font-mono text-xs text-saffron">
+            ★ 5.0 on Google (2 reviews)
           </p>
         </div>
 
@@ -45,9 +48,21 @@ export default function Footer() {
             Contact
           </p>
           <ul className="mt-4 space-y-2 text-sm">
-            <li>Placeholder Address, Nashik, MH</li>
-            <li>+91 00000 00000</li>
-            <li>booking@swamitours.example</li>
+            <li>
+              D1/03, New Green Valley CHS, Sector 8B, CBD Belapur,
+              Navi Mumbai — 400614
+              <br />
+              <a
+                href="https://maps.google.com/maps?vet=10CAAQoqAOahcKEwi4mMy__L2VAxUAAAAAHQAAAAAQCA..i&sca_esv=2fa727a4d830487c&udm=1&pvq=Cg0vZy8xMW5xeG55dGp5IhEKC3N3YW1pIHRvdXJzEAIYAw&lqi=Cgtzd2FtaSB0b3Vyc0idzLvK27SAgAhaFRAAEAEYABgBIgtzd2FtaSB0b3Vyc5IBEWNhcl9yZW50YWxfYWdlbmN5&fvr=1&cs=0&um=1&ie=UTF-8&fb=1&gl=in&sa=X&ftid=0x3be7c3baa3d1adbd:0x91ed20f6c76f79c3"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-saffron hover:text-white"
+              >
+                Get directions →
+              </a>
+            </li>
+            <li>+91 93243 78802</li>
+            <li>swamitours001@gmail.com</li>
           </ul>
         </div>
 
@@ -56,8 +71,8 @@ export default function Footer() {
             Hours
           </p>
           <ul className="mt-4 space-y-2 text-sm">
+            <li>Open 24 hours</li>
             <li>Booking desk: 24×7</li>
-            <li>Office: 9:00 AM – 9:00 PM</li>
           </ul>
         </div>
       </div>

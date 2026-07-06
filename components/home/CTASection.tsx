@@ -17,13 +17,13 @@ export default function CTASection() {
         </div>
         <div className="flex gap-3">
           <a
-            href="tel:+910000000000"
+            href="tel:+919324378802"
             className="rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white hover:bg-ink/80 transition-colors"
           >
             Call Now
           </a>
           <a
-            href="https://wa.me/910000000000"
+            href="https://wa.me/919324378802"
             className="rounded-full border border-ink px-6 py-3 text-sm font-semibold text-ink hover:bg-ink hover:text-white transition-colors"
           >
             WhatsApp

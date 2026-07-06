@@ -6,6 +6,7 @@ import Fleet from "@/components/home/Fleet";
 import Destinations from "@/components/home/Destinations";
 import Testimonials from "@/components/home/Testimonials";
 import CTASection from "@/components/home/CTASection";
+import FloatingContact from "@/components/ui/FloatingContact";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         <CTASection />
       </main>
       <Footer />
+      <FloatingContact />
     </>
   );
 }

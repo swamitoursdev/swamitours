@@ -1,10 +1,10 @@
 const destinations = [
-  { name: "Trimbakeshwar", note: "Jyotirlinga darshan, 30 min from Nashik" },
   { name: "Shirdi", note: "Sai Baba temple, popular day trip" },
-  { name: "Saptashrungi", note: "Hilltop Devi temple & ropeway" },
-  { name: "Pandharpur", note: "Vithoba temple, Ashadhi Ekadashi route" },
-  { name: "Bhimashankar", note: "Jyotirlinga amid the Sahyadri hills" },
-  { name: "Aurangabad", note: "Ajanta-Ellora caves circuit" },
+  { name: "Trimbakeshwar & Nashik", note: "Jyotirlinga darshan, wine country stops" },
+  { name: "Mahabaleshwar", note: "Hill station, strawberry season drives" },
+  { name: "Lonavala & Khandala", note: "Weekend getaway, monsoon route" },
+  { name: "Alibaug", note: "Beach day trip via the Belapur bridge" },
+  { name: "Matheran", note: "Car up to the base, then a short trek in" },
 ];
 
 export default function Destinations() {
@@ -15,7 +15,7 @@ export default function Destinations() {
           Where we go
         </p>
         <h2 className="mt-3 font-display text-3xl font-semibold text-ink">
-          Popular routes out of Nashik.
+          Popular routes out of Navi Mumbai.
         </h2>
         <p className="mt-3 text-sm text-ink/60">
           Placeholder list — swap in your real routes, distances and fares.
