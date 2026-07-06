@@ -1,7 +1,25 @@
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import Hero from "@/components/home/Hero";
+import Services from "@/components/home/Services";
+import Fleet from "@/components/home/Fleet";
+import Destinations from "@/components/home/Destinations";
+import Testimonials from "@/components/home/Testimonials";
+import CTASection from "@/components/home/CTASection";
+
 export default function Home() {
   return (
-    <div className="flex flex-1 items-center justify-center">
-      <p className="text-lg text-zinc-500">Swami Tours — coming soon</p>
-    </div>
+    <>
+      <Header />
+      <main className="flex-1">
+        <Hero />
+        <Services />
+        <Fleet />
+        <Destinations />
+        <Testimonials />
+        <CTASection />
+      </main>
+      <Footer />
+    </>
   );
 }
