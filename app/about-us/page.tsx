@@ -96,7 +96,7 @@ export default function Page() {
         {/* About content */}
         <section className="bg-sand py-16">
           <div className="mx-auto max-w-5xl px-5 sm:px-8">
-            <div className="rounded-t-xl bg-gradient-to-r from-saffron to-saffron-dark py-4 text-center">
+            <div className="rounded-t-xl bg-linear-to-r from-saffron to-saffron-dark py-4 text-center">
               <h2 className="font-display text-lg font-semibold tracking-wide text-white">
                 ABOUT US
               </h2>
