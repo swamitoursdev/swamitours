@@ -46,23 +46,25 @@ export default function Hero() {
       </svg>
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8 pt-16 pb-24 flex flex-col items-center text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-saffron">
-          Cabs · Outstation · Pilgrimage Tours
-        </p>
-        <h1 className="mt-4 font-display text-4xl sm:text-5xl font-semibold leading-tight text-white max-w-2xl">
-          Every journey deserves a driver who knows the way.
-        </h1>
-        <p className="mt-4 max-w-xl text-white/80">
-          Swami Tours runs local cabs, outstation trips and pilgrimage
-          packages across Maharashtra — one call, and the whole route is
-          planned for you.
-        </p>
-
-        <div className="mt-10 w-full flex justify-center">
+        <div className="order-1 sm:order-2 w-full flex justify-center sm:mt-10">
           <BookingWidget />
         </div>
 
-        <div className="mt-14 grid grid-cols-3 gap-8 w-full max-w-lg">
+        <div className="order-2 sm:order-1 mt-8 sm:mt-0 flex flex-col items-center">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-saffron">
+            Cabs · Outstation · Pilgrimage Tours
+          </p>
+          <h1 className="mt-4 font-display text-4xl sm:text-5xl font-semibold leading-tight text-white max-w-2xl">
+            Every journey deserves a driver who knows the way.
+          </h1>
+          <p className="mt-4 max-w-xl text-white/80">
+            Swami Tours runs local cabs, outstation trips and pilgrimage
+            packages across Maharashtra — one call, and the whole route is
+            planned for you.
+          </p>
+        </div>
+
+        <div className="order-3 mt-14 grid grid-cols-3 gap-8 w-full max-w-lg">
           {stats.map((stat) => (
             <div key={stat.label} className="text-white">
               <p className="font-display text-2xl font-semibold text-saffron">

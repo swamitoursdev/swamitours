@@ -212,6 +212,7 @@ const pageLinks: PageLink[] = [
 
 export default function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // page-links drawer
+  const [logoModalOpen, setLogoModalOpen] = useState(false); // logo preview modal
   const [activeSection, setActiveSection] = useState("home"); // scroll-spy for bottom nav
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -256,11 +257,17 @@ export default function Header() {
 
   return (
     <>
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-moss/10">
+    <header className="sticky top-0 z-50 bg-white/40 backdrop-blur border-b border-moss/10">
       <div className="mx-auto max-w-6xl px-5 sm:px-8 h-20 flex items-center justify-between">
-        <Link href="#home" className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setLogoModalOpen(true)}
+          aria-haspopup="dialog"
+          aria-label="View Swami Tours logo"
+          className="flex items-center gap-2"
+        >
           <Image
-            src="/assets/swami-logo.jpeg"
+            src="/assets/swami-logo-nobg.png"
             alt="Swami Tours"
             width={52}
             height={52}
@@ -270,7 +277,7 @@ export default function Header() {
           <span className="font-display text-xl font-semibold tracking-tight text-ink hidden sm:inline">
             Swami Tours
           </span>
-        </Link>
+        </button>
 
         {/* Desktop nav — section anchors, only meaningful on the home page */}
         {isHome && (
@@ -309,7 +316,7 @@ export default function Header() {
             aria-expanded={sidebarOpen}
             aria-controls="page-nav-drawer"
             aria-label="Open pages menu"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/10 text-ink hover:bg-sand transition-colors"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/10 bg-white text-ink hover:bg-sand transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <rect x="4" y="5" width="16" height="2.2" rx="1.1" fill="currentColor" />
@@ -345,7 +352,7 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between border-b border-ink/10 bg-sand/60 px-5">
           <Link href="/" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
             <Image
-              src="/assets/swami-logo.jpeg"
+              src="/assets/swami-logo-nobg.png"
               alt="Swami Tours"
               width={34}
               height={34}
@@ -399,7 +406,7 @@ export default function Header() {
       {isHome && (
         <nav
           aria-label="Section navigation"
-          className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-moss/10 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)]"
+          className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-moss/10 bg-white/40 backdrop-blur pb-[env(safe-area-inset-bottom)]"
         >
           <div className="flex items-stretch justify-between px-1">
             {navLinks.map((link) => {
@@ -420,6 +427,43 @@ export default function Header() {
           </div>
         </nav>
       )}
+
+      {/* Logo preview modal — opens when the header logo is tapped */}
+      <div
+        onClick={() => setLogoModalOpen(false)}
+        aria-hidden={!logoModalOpen}
+        className={`fixed inset-0 z-60 flex items-center justify-center bg-ink/60 backdrop-blur-sm transition-opacity duration-300 ${
+          logoModalOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Swami Tours logo"
+          onClick={(e) => e.stopPropagation()}
+          className={`relative transition-transform duration-300 ${
+            logoModalOpen ? "scale-100" : "scale-95"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={() => setLogoModalOpen(false)}
+            aria-label="Close"
+            className="absolute -top-3 -right-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-ink/60 shadow-md hover:text-ink transition-colors"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
+          <Image
+            src="/assets/swami-logo-nobg.png"
+            alt="Swami Tours"
+            width={240}
+            height={240}
+            className="h-auto w-56 max-w-[60vw] object-contain drop-shadow-2xl"
+          />
+        </div>
+      </div>
     </>
   );
 }

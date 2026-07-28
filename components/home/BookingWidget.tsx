@@ -29,6 +29,7 @@ export default function BookingWidget() {
 
   const inputClasses =
     "w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/45 backdrop-blur-sm transition-colors focus:outline-2 focus:outline-saffron focus:bg-white/15 [color-scheme:dark]";
+  const timeInputClasses = `${inputClasses} [&::-webkit-calendar-picker-indicator]:[filter:brightness(0)_saturate(100%)_invert(8%)_sepia(54%)_saturate(6763%)_hue-rotate(240deg)_brightness(87%)_contrast(139%)]`;
   const labelClasses = "text-xs font-mono uppercase tracking-wide text-white/60";
 
   const petsField = (
@@ -81,24 +82,28 @@ export default function BookingWidget() {
       tripType === "Local" ? "Package" : isAirportDrop ? "Drop Airport" : "Drop Location";
 
     const lines = [
-      "New Cab Booking Request",
-      `Trip Type: ${tripType}${isAirport ? ` (${airportDirection})` : ""}`,
-      `${pickupLabel}: ${pickup || "-"}`,
-      `${dropLabel}: ${drop || "-"}`,
-      `${isRoundTrip ? "Departure Date" : "Date"}: ${date || "-"}`,
-      `${isRoundTrip ? "Departure Time" : "Time"}: ${time || "-"}`,
+      "*🚖 NEW CAB BOOKING REQUEST*",
+      "───────────────────",
+      `*Trip Type:* ${tripType}${isAirport ? ` (${airportDirection})` : ""}`,
+      `*${pickupLabel}:* ${pickup || "-"}`,
+      `*${dropLabel}:* ${drop || "-"}`,
+      `*${isRoundTrip ? "Departure Date" : "Date"}:* ${date || "-"}`,
+      `*${isRoundTrip ? "Departure Time" : "Time"}:* ${time || "-"}`,
     ];
 
     if (isRoundTrip) {
-      lines.push(`Return Date: ${returnDate || "-"}`, `Return Time: ${returnTime || "-"}`);
+      lines.push(`*Return Date:* ${returnDate || "-"}`, `*Return Time:* ${returnTime || "-"}`);
     }
 
     lines.push(
-      `Name: ${name || "-"}`,
-      `Phone: ${phone || "-"}`,
-      `Passengers: ${passengers || "-"}`,
-      `Luggage (bags): ${luggage || "-"}`,
-      `Carrying Pets: ${carryingPets ? "Yes" : "No"}`
+      "",
+      "*👤 PASSENGER DETAILS*",
+      "───────────────────",
+      `*Name:* ${name || "-"}`,
+      `*Phone:* ${phone || "-"}`,
+      `*Passengers:* ${passengers || "-"}`,
+      `*Luggage:* ${luggage || "-"} bag(s)`,
+      `*Carrying Pets:* ${carryingPets ? "Yes 🐾" : "No"}`
     );
 
     const message = encodeURIComponent(lines.join("\n"));
@@ -243,7 +248,7 @@ export default function BookingWidget() {
               type="time"
               value={time}
               onChange={(event) => setTime(event.target.value)}
-              className={inputClasses}
+              className={timeInputClasses}
             />
           </label>
 
@@ -265,7 +270,7 @@ export default function BookingWidget() {
                   type="time"
                   value={returnTime}
                   onChange={(event) => setReturnTime(event.target.value)}
-                  className={inputClasses}
+                  className={timeInputClasses}
                 />
               </label>
             </>
@@ -324,7 +329,7 @@ export default function BookingWidget() {
 
           <button
             type="submit"
-            className="self-end rounded-lg bg-saffron px-4 py-2.5 text-sm font-semibold text-white hover:bg-saffron-dark transition-colors col-span-2 sm:col-span-1"
+            className="self-end rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition-colors col-span-2 sm:col-span-1"
           >
             Search Cabs
           </button>
