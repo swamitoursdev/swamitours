@@ -20,9 +20,18 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Swami Tours | Cabs, Outstation Travel & Pilgrimage Tours",
+  metadataBase: new URL("https://www.swamitours.com"),
+  title: {
+    default: "Swami Tours | Cabs, Outstation Travel & Pilgrimage Tours",
+    template: "%s | Swami Tours",
+  },
   description:
     "Swami Tours offers reliable local cabs, outstation trips, airport transfers and pilgrimage tour packages across Maharashtra.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    siteName: "Swami Tours",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
