@@ -10,17 +10,29 @@ const stats = [
 export default function Hero() {
   return (
     <section id="home" className="relative overflow-hidden bg-moss">
+      {/* Background video, sits behind everything else in the section. */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        className="absolute inset-0 h-full w-full object-cover"
+      >
+        <source src="/assets/tesla.mp4" type="video/mp4" />
+      </video>
+
       {/* Custom illustration: ghats + hills + a dashed pilgrim route, drawn
           rather than sourced, so nothing here is stock photography. */}
       <svg
         viewBox="0 0 1200 500"
         preserveAspectRatio="xMidYMax slice"
-        className="absolute inset-0 h-full w-full opacity-90"
+        className="absolute inset-0 h-full w-full opacity-30"
         aria-hidden="true"
       >
-        <rect width="1200" height="500" fill="var(--color-moss)" />
-        <path d="M0 320 L180 200 L360 320 L520 220 L700 320 L880 210 L1050 320 L1200 260 L1200 500 L0 500 Z" fill="var(--color-moss-dark)" opacity="0.6" />
-        <path d="M0 380 L220 280 L420 380 L600 300 L820 380 L1000 300 L1200 370 L1200 500 L0 500 Z" fill="#152c0d" opacity="0.7" />
+        <rect width="1200" height="500" fill="var(--color-moss)" opacity="0.2" />
+        <path d="M0 320 L180 200 L360 320 L520 220 L700 320 L880 210 L1050 320 L1200 260 L1200 500 L0 500 Z" fill="var(--color-moss-dark)" opacity="0.35" />
+        <path d="M0 380 L220 280 L420 380 L600 300 L820 380 L1000 300 L1200 370 L1200 500 L0 500 Z" fill="#152c0d" opacity="0.4" />
         <path
           d="M40 460 C 300 380, 500 480, 760 400 S 1050 340, 1180 420"
           stroke="var(--color-saffron)"
