@@ -5,15 +5,84 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// These are in-page section anchors that only exist on the home page ("/").
-// They're prefixed with "/" so they still work correctly from other routes
-// (the browser will navigate home first, then jump to the section).
+const anchorIconProps = {
+  width: 20,
+  height: 20,
+  viewBox: "0 0 24 24",
+  fill: "none" as const,
+  "aria-hidden": true as const,
+};
+
+// In-page section anchors — only meaningful on the home page ("/").
+// Rendered as a bottom nav bar on mobile, and as a horizontal nav on desktop.
 const navLinks = [
-  { label: "Home", href: "/#home" },
-  { label: "Services", href: "/#services" },
-  { label: "Fleet", href: "/#fleet" },
-  { label: "Destinations", href: "/#destinations" },
-  { label: "Contact", href: "/#contact" },
+  {
+    label: "Home",
+    href: "/#home",
+    id: "home",
+    icon: (
+      <svg {...anchorIconProps}>
+        <path d="M4 11.5 12 4l8 7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6 10v9a1 1 0 0 0 1 1h3v-5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v5h3a1 1 0 0 0 1-1v-9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    label: "Services",
+    href: "/#services",
+    id: "services",
+    icon: (
+      <svg {...anchorIconProps}>
+        <path
+          d="M14.7 6.3a3.5 3.5 0 0 1-4.6 4.6l-5.4 5.4a1.5 1.5 0 0 0 2.1 2.1l5.4-5.4a3.5 3.5 0 0 1 4.6-4.6l-2.1 2.1-1.5-.4-.4-1.5 2.1-2.1Z"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: "Fleet",
+    href: "/#fleet",
+    id: "fleet",
+    icon: (
+      <svg {...anchorIconProps}>
+        <path d="M4 16.5v-3l1.8-4.6A2 2 0 0 1 7.7 7.5h8.6a2 2 0 0 1 1.9 1.4l1.8 4.6v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="3" y="16.5" width="18" height="3.5" rx="1" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="7.5" cy="16.5" r="1.4" fill="currentColor" />
+        <circle cx="16.5" cy="16.5" r="1.4" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    label: "Destinations",
+    href: "/#destinations",
+    id: "destinations",
+    icon: (
+      <svg {...anchorIconProps}>
+        <path
+          d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        <circle cx="12" cy="9.5" r="2.2" stroke="currentColor" strokeWidth="1.6" />
+      </svg>
+    ),
+  },
+  {
+    label: "Contact",
+    href: "/#contact",
+    id: "contact",
+    icon: (
+      <svg {...anchorIconProps}>
+        <rect x="3.5" y="5.5" width="17" height="13" rx="2" stroke="currentColor" strokeWidth="1.6" />
+        <path d="m4.5 7 7.5 5.5L19.5 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
 ];
 
 type PageLink = {
@@ -142,13 +211,13 @@ const pageLinks: PageLink[] = [
 ];
 
 export default function Header() {
-  const [open, setOpen] = useState(false); // existing mobile anchor-link dropdown
-  const [sidebarOpen, setSidebarOpen] = useState(false); // new page-links drawer
+  const [sidebarOpen, setSidebarOpen] = useState(false); // page-links drawer
+  const [activeSection, setActiveSection] = useState("home"); // scroll-spy for bottom nav
   const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
     setSidebarOpen(false);
-    setOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -158,10 +227,38 @@ export default function Header() {
     };
   }, [sidebarOpen]);
 
+  // Scroll-spy: highlight whichever section is currently in view on the home page.
+  useEffect(() => {
+    if (!isHome) return;
+
+    const sections = navLinks
+      .map((link) => document.getElementById(link.id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visible[0]) {
+          setActiveSection(visible[0].target.id);
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
+    );
+
+    sections.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [isHome]);
+
   return (
+    <>
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-moss/10">
       <div className="mx-auto max-w-6xl px-5 sm:px-8 h-20 flex items-center justify-between">
-        <Link href="#home" className="flex items-center gap-2" onClick={() => setOpen(false)}>
+        <Link href="#home" className="flex items-center gap-2">
           <Image
             src="/assets/swami-logo.jpeg"
             alt="Swami Tours"
@@ -176,7 +273,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop nav — section anchors, only meaningful on the home page */}
-        {pathname === "/" && (
+        {isHome && (
           <nav className="hidden md:flex items-center gap-8 font-sans text-sm text-ink/80">
             {navLinks.map((link) => (
               <Link
@@ -205,7 +302,7 @@ export default function Header() {
             Call Now
           </a>
 
-          {/* NEW: sidebar toggle — opens drawer with links to the app pages */}
+          {/* Only menu button now — opens the drawer with links to the app pages */}
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -220,60 +317,13 @@ export default function Header() {
               <rect x="4" y="16.8" width="16" height="2.2" rx="1.1" fill="currentColor" />
             </svg>
           </button>
-
-          {/* Mobile anchor-menu toggle — only relevant on the home page */}
-          {pathname === "/" && (
-            <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              aria-expanded={open}
-              aria-controls="mobile-menu"
-              aria-label={open ? "Close menu" : "Open menu"}
-              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/10 text-ink"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                {open ? (
-                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                ) : (
-                  <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                )}
-              </svg>
-            </button>
-          )}
         </div>
       </div>
 
-      {/* Mobile anchor-dropdown — only relevant on the home page */}
-      {pathname === "/" && (
-        <div
-          id="mobile-menu"
-          className={`md:hidden overflow-hidden border-t border-moss/10 bg-white transition-[max-height] duration-300 ${
-            open ? "max-h-96" : "max-h-0"
-          }`}
-        >
-          <nav className="flex flex-col px-5 py-4 gap-1 font-sans text-sm text-ink/80">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 hover:bg-sand hover:text-saffron-dark transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <a
-              href="tel:+919324378802"
-              onClick={() => setOpen(false)}
-              className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-saffron px-4 py-2.5 text-sm font-medium text-white hover:bg-saffron-dark transition-colors"
-            >
-              Call Now — 93243 78802
-            </a>
-          </nav>
-        </div>
-      )}
+    </header>
 
-      {/* NEW: backdrop for the pages drawer */}
+      {/* Backdrop for the pages drawer — rendered outside <header> so backdrop-blur's
+          containing-block effect doesn't hijack this element's fixed positioning */}
       <div
         onClick={() => setSidebarOpen(false)}
         aria-hidden="true"
@@ -282,7 +332,7 @@ export default function Header() {
         }`}
       />
 
-      {/* NEW: slide-in drawer with links to the app pages */}
+      {/* Slide-in drawer with links to the app pages */}
       <aside
         id="page-nav-drawer"
         role="dialog"
@@ -344,6 +394,32 @@ export default function Header() {
           })}
         </nav>
       </aside>
-    </header>
+
+      {/* NEW: bottom nav bar — replaces the old mobile anchor-dropdown. Home page + mobile only. */}
+      {isHome && (
+        <nav
+          aria-label="Section navigation"
+          className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-moss/10 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)]"
+        >
+          <div className="flex items-stretch justify-between px-1">
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[11px] transition-colors ${
+                    isActive ? "text-saffron-dark" : "text-ink/60 hover:text-ink"
+                  }`}
+                >
+                  {link.icon}
+                  <span className={isActive ? "font-medium" : ""}>{link.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+    </>
   );
 }

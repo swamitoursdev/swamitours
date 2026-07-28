@@ -4,7 +4,7 @@
  */
 export default function FloatingContact() {
   return (
-    <div className="md:hidden fixed bottom-5 right-5 z-50 flex flex-col items-center gap-3">
+    <div className="md:hidden fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-5 z-50 flex flex-col items-center gap-3">
       <a
         href="tel:+919324378802"
         aria-label="Call Swami Tours"
