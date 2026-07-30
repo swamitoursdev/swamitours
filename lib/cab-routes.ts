@@ -46,6 +46,29 @@ export const fareRows = [
   { vehicle: "Prime SUV — Innova", capacity: "7 Seater", oneWay: "₹20/km", roundTrip: "₹19/km", local: "₹900" },
 ];
 
+export const stateSlug = (state: string) => `cab-service-in-${slugify(state)}`;
+
+export function getStateContent(state: string) {
+  const blog = {
+    title: `Cab Service in ${state} | Local & Outstation Taxi`,
+    paragraphs: [
+      `Swami Tours provides reliable, 24×7 cab services across ${state}, covering local rides, outstation trips and airport transfers with verified drivers and clean, well-maintained cars.`,
+      `Whether you need a one-way drop, a round trip, or a full-day local rental within ${state}, we quote the fare upfront with no hidden charges — pay only for what you book.`,
+      `All bookings in ${state} can be made online or on call, and we track flight or train timings on airport and station transfers so your driver is always ready when you arrive.`,
+      `Choose from hatchbacks, sedans, SUVs and tempo travellers depending on group size and luggage. Every vehicle serving ${state} is sanitised and serviced regularly.`,
+    ],
+  };
+
+  const faqs = [
+    { q: `Does Swami Tours operate cab services in ${state}?`, a: `Yes, we offer local, outstation, and airport cab services across ${state} with experienced, verified drivers.` },
+    { q: `How much does a cab in ${state} cost?`, a: `Fares depend on vehicle type and trip type — see the fare table above for current one-way, round-trip and local rates.` },
+    { q: `Are cabs in ${state} available 24x7?`, a: `Yes, bookings and pickups are available round the clock, including early morning airport transfers.` },
+    { q: `Can I book a round trip within ${state}?`, a: `Yes, round-trip bookings include waiting time and are priced lower per km than one-way trips.` },
+  ];
+
+  return { blog, faqs };
+}
+
 export function getRouteContent(from: string, to: string) {
   const blog = {
     title: `Taxi Service ${from} to ${to} | Local & Outstation Cab`,
