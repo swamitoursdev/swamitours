@@ -20,7 +20,10 @@ export default function StateLandingContent({ state }: { state: string }) {
             Cab Service in {state} — Local &amp; Outstation Taxis
           </h1>
           <div className="mt-8">
-            <BookingWidget />
+            <BookingWidget
+              defaultDrop={state}
+              defaultTripType="One Way"
+            />
           </div>
         </div>
       </section>

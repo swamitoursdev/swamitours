@@ -7,11 +7,21 @@ import { airports } from "./airports";
 const tripTypes = ["Airport", "Local", "One Way", "Round Trip"] as const;
 const WHATSAPP_NUMBER = "919324378802"; // +91 93243 78802
 
-export default function BookingWidget() {
-  const [tripType, setTripType] = useState<(typeof tripTypes)[number]>("Airport");
+type BookingWidgetProps = {
+  defaultPickup?: string;
+  defaultDrop?: string;
+  defaultTripType?: (typeof tripTypes)[number];
+};
+
+export default function BookingWidget({
+  defaultPickup = "",
+  defaultDrop = "",
+  defaultTripType = "Airport",
+}: BookingWidgetProps) {
+  const [tripType, setTripType] = useState<(typeof tripTypes)[number]>(defaultTripType);
   const [carryingPets, setCarryingPets] = useState(false);
-  const [pickup, setPickup] = useState("");
-  const [drop, setDrop] = useState("");
+  const [pickup, setPickup] = useState(defaultPickup);
+  const [drop, setDrop] = useState(defaultDrop);
   const [airportDirection, setAirportDirection] = useState<"Pickup" | "Drop">("Pickup");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");

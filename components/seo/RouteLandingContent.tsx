@@ -20,7 +20,11 @@ export default function RouteLandingContent({ from, to }: { from: string; to: st
             Taxi Service {from} to {to} — Local &amp; Outstation Cabs
           </h1>
           <div className="mt-8">
-            <BookingWidget />
+            <BookingWidget
+              defaultPickup={from}
+              defaultDrop={to}
+              defaultTripType="One Way"
+            />
           </div>
         </div>
       </section>
@@ -52,7 +56,17 @@ export default function RouteLandingContent({ from, to }: { from: string; to: st
         </section>
       </div>
 
-      <RoutesGrid title={`Popular outstation cab routes from ${from}`} exclude={routeSlug(from, to)} />
+      <RoutesGrid
+        title={`Popular outstation cab routes from ${from}`}
+        fromCity={from}
+        exclude={routeSlug(from, to)}
+      />
+
+      <RoutesGrid
+        title={`Popular outstation cab routes from ${to}`}
+        fromCity={to}
+        exclude={routeSlug(from, to)}
+      />
     </main>
   );
 }
