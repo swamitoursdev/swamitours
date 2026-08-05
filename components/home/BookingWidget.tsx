@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AutocompleteInput from "./AutocompleteInput";
 import { airports } from "./airports";
 import { cabTypes, vehicleRates, estimateDistanceKm } from "@/lib/cab-routes";
@@ -94,10 +94,6 @@ export default function BookingWidget({
   const inputClasses =
     "w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/45 backdrop-blur-sm transition-colors focus:outline-2 focus:outline-saffron focus:bg-white/15 [color-scheme:dark]";
   const timeInputClasses = `${inputClasses} [&::-webkit-calendar-picker-indicator]:[filter:brightness(0)_saturate(100%)_invert(8%)_sepia(54%)_saturate(6763%)_hue-rotate(240deg)_brightness(87%)_contrast(139%)] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer`;
-  // Date inputs need the same icon-color fix as time inputs — otherwise the
-  // native calendar icon renders dark-on-dark and disappears, especially on
-  // mobile browsers.
-  const dateInputClasses = timeInputClasses;
   const labelClasses = "text-xs font-mono uppercase tracking-wide text-white/60";
 
   const petsField = (
@@ -148,10 +144,14 @@ export default function BookingWidget({
   // The browser renders a native date input's closed-state text (mm/dd/yyyy,
   // dd/mm/yyyy, etc.) based on the device/OS locale — there's no reliable
   // cross-browser way to force it via CSS or the `lang` attribute alone. To
-  // guarantee dd/mm/yyyy everywhere, we make the native input's own text
-  // transparent and overlay our own formatted text on top. The native input
-  // (and its calendar icon + picker) still works exactly as before; only the
-  // text you *see* is now ours.
+  // guarantee dd/mm/yyyy everywhere, we overlay our own formatted text on
+  // top of the native input *while it's not focused*, and let the native
+  // input render/behave completely normally while it *is* focused. The
+  // native input is always the real, editable element — we never disable
+  // it or pull it out of the tab order — so typing, arrow keys, and the
+  // native picker all keep working. Because only one of "native input" /
+  // "our overlay" is ever visible at the same time, they can never produce
+  // doubled or garbled text on top of each other.
   function DateField({
     label,
     value,
@@ -161,24 +161,67 @@ export default function BookingWidget({
     value: string;
     onChange: (value: string) => void;
   }) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [isFocused, setIsFocused] = useState(false);
+
+    // Clicking the overlay focuses the real input (so it becomes the
+    // visible/editable element) and opens the native picker via
+    // showPicker() (falling back to .click()).
+    function openPicker() {
+      const el = inputRef.current;
+      if (!el) return;
+      el.focus();
+      if (typeof el.showPicker === "function") {
+        try {
+          el.showPicker();
+          return;
+        } catch {
+          // fall through to click()
+        }
+      }
+      el.click();
+    }
+
     return (
       <label className="flex flex-col gap-1">
         <span className={labelClasses}>{label}</span>
         <div className="relative">
           <input
+            ref={inputRef}
             type="date"
             value={value}
             onChange={(event) => onChange(event.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             aria-label={`${label} (dd/mm/yyyy)`}
-            className={`${dateInputClasses} text-transparent caret-transparent`}
+            className={
+              isFocused
+                ? `${inputClasses} absolute inset-0 h-full w-full cursor-text`
+                : "absolute inset-0 h-full w-full cursor-pointer opacity-0 pointer-events-none"
+            }
           />
-          <span className="pointer-events-none absolute inset-0 flex items-center px-3 pr-9 text-sm">
+          <div
+            onClick={openPicker}
+            className={`${inputClasses} flex cursor-pointer items-center justify-between`}
+          >
             {value ? (
               <span className="text-white">{formatDateDMY(value)}</span>
             ) : (
               <span className="text-white/45">dd/mm/yyyy</span>
             )}
-          </span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4 shrink-0 text-saffron"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M3 10h18M8 2v4M16 2v4" />
+            </svg>
+          </div>
         </div>
       </label>
     );
@@ -201,7 +244,6 @@ export default function BookingWidget({
       "───────────────────",
       `*Trip Type:* ${tripType}${isAirport ? ` (${airportDirection})` : ""}`,
       `*Cab Type:* ${selectedVehicle ? `${selectedVehicle.label} (${selectedVehicle.category})` : "-"}`,
-      `*Approx. Fare:* ${approxFareLabel ? `${approxFareLabel} (estimate, to be confirmed)` : "To be confirmed"}`,
       `*${pickupLabel}:* ${pickup || "-"}`,
       `*${dropLabel}:* ${drop || "-"}`,
       `*${isRoundTrip ? "Departure Date" : "Date"}:* ${formatDateDMY(date) || "-"}`,
@@ -224,6 +266,15 @@ export default function BookingWidget({
       `*Passengers:* ${passengers || "-"}`,
       `*Luggage:* ${luggage || "-"} bag(s)`,
       `*Carrying Pets:* ${carryingPets ? "Yes 🐾" : "No"}`
+    );
+
+    lines.push(
+      "",
+      "*💰 APPROX. FARE*",
+      "───────────────────",
+      `${approxFareLabel ? `${approxFareLabel} (estimate, to be confirmed)` : "To be confirmed"}`,
+      "_⚠️ Tolls, parking, state taxes & other charges are NOT included in the above fare._",
+      "_Final fare will be charged based on actual running (km)._"
     );
 
     const message = encodeURIComponent(lines.join("\n"));
@@ -278,18 +329,11 @@ export default function BookingWidget({
         <div className="flex flex-col gap-2">
           {/* Date + Time */}
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1">
-              <span className={labelClasses}>
-                {isRoundTrip ? "Departure Date" : "Date"}
-              </span>
-              <input
-                type="date"
-                lang="en-GB"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                className={dateInputClasses}
-              />
-            </label>
+            <DateField
+              label={isRoundTrip ? "Departure Date" : "Date"}
+              value={date}
+              onChange={setDate}
+            />
 
             <label className="flex flex-col gap-1">
               <span className={labelClasses}>
@@ -382,16 +426,7 @@ export default function BookingWidget({
           {/* Return Date + Time */}
           {isRoundTrip && (
             <div className="grid grid-cols-2 gap-2">
-              <label className="flex flex-col gap-1">
-                <span className={labelClasses}>Return Date</span>
-                <input
-                  type="date"
-                  lang="en-GB"
-                  value={returnDate}
-                  onChange={(event) => setReturnDate(event.target.value)}
-                  className={dateInputClasses}
-                />
-              </label>
+              <DateField label="Return Date" value={returnDate} onChange={setReturnDate} />
 
               <label className="flex flex-col gap-1">
                 <span className={labelClasses}>Return Time</span>
