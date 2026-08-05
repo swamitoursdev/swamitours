@@ -1,13 +1,10 @@
-const fleet = [
-  { name: "WagonR", seats: "4 Seater", use: "Hatchback — quick city runs", tone: "var(--color-saffron)" },
-  { name: "Swift Dzire", seats: "4 Seater", use: "Sedan — comfortable outstation", tone: "var(--color-moss)" },
-  { name: "Tigor", seats: "4 Seater", use: "Sedan — city & highway", tone: "var(--color-saffron-dark)" },
-  { name: "Maruti Ertiga", seats: "6 Seater", use: "MUV — small family groups", tone: "var(--color-moss-dark)" },
-  { name: "Nexon", seats: "5 Seater", use: "Compact SUV", tone: "var(--color-saffron)" },
-  { name: "Scorpio", seats: "7 Seater", use: "SUV — hill & ghat routes", tone: "var(--color-moss)" },
-  { name: "Tavera", seats: "7-8 Seater", use: "MUV — group travel", tone: "var(--color-saffron-dark)" },
-  { name: "Innova Crysta", seats: "7 Seater", use: "MUV — premium outstation", tone: "var(--color-moss-dark)" },
-  { name: "Tempo Traveller", seats: "12-17 Seater", use: "Group pilgrimage tours", tone: "var(--color-saffron)" },
+import { fareRows } from "@/lib/cab-routes";
+
+const tones = [
+  "var(--color-saffron)",
+  "var(--color-moss)",
+  "var(--color-saffron-dark)",
+  "var(--color-moss-dark)",
 ];
 
 function CarMark({ tone }: { tone: string }) {
@@ -41,20 +38,25 @@ export default function Fleet() {
             Pick the ride that fits the trip.
           </h2>
           <p className="mt-3 text-sm text-ink/60">
-            Lineup below — confirm which of these you actually run, and swap
-            in real per-km / per-day rates once you have a rate card handy.
+            From a quick city hatchback to a Tempo Traveller for the whole
+            group — every category below is available to book by Cab Type.
           </p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {fleet.map((car) => (
-            <div key={car.name} className="rounded-2xl bg-white p-5 border border-ink/10">
-              <CarMark tone={car.tone} />
-              <h3 className="mt-4 font-display text-base font-semibold text-ink">
-                {car.name}
+          {fareRows.map((row, i) => (
+            <div
+              key={`${row.category}-${i}`}
+              className="rounded-2xl bg-white p-5 border border-ink/10"
+            >
+              <CarMark tone={tones[i % tones.length]} />
+              <p className="mt-4 font-mono text-xs uppercase tracking-[0.15em] text-saffron-dark">
+                {row.category}
+              </p>
+              <h3 className="mt-1 font-display text-base font-semibold text-ink">
+                {row.vehicles}
               </h3>
-              <p className="font-mono text-xs text-ink/50 mt-1">{car.seats}</p>
-              <p className="mt-2 text-sm text-ink/65">{car.use}</p>
+              <p className="mt-2 text-sm font-medium text-ink/65">{row.rate}</p>
               <a
                 href="tel:+919324378802"
                 className="mt-4 inline-block text-sm font-medium text-saffron-dark hover:text-saffron"

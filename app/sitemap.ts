@@ -9,7 +9,7 @@ const base = "https://www.swamitours.com";
 // engines use it as a freshness signal, so it shouldn't flip on every build
 // when nothing on the page changed.
 const SITE_LAST_MODIFIED = new Date("2026-07-30");
-const ROUTES_LAST_MODIFIED = new Date("2026-07-30");
+const ROUTES_LAST_MODIFIED = new Date("2026-08-05");
 const STATES_LAST_MODIFIED = new Date("2026-07-30");
 
 const staticRoutes = [

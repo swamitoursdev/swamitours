@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AutocompleteInput from "./AutocompleteInput";
 import { airports } from "./airports";
+import { cabTypes, vehicleRates, estimateDistanceKm } from "@/lib/cab-routes";
 
 const tripTypes = ["Airport", "Local", "One Way", "Round Trip"] as const;
 const WHATSAPP_NUMBER = "919324378802"; // +91 93243 78802
@@ -19,6 +20,8 @@ export default function BookingWidget({
   defaultTripType = "Airport",
 }: BookingWidgetProps) {
   const [tripType, setTripType] = useState<(typeof tripTypes)[number]>(defaultTripType);
+  const [cabCategory, setCabCategory] = useState("");
+  const [cabTypeId, setCabTypeId] = useState("");
   const [carryingPets, setCarryingPets] = useState(false);
   const [pickup, setPickup] = useState(defaultPickup);
   const [drop, setDrop] = useState(defaultDrop);
@@ -32,10 +35,61 @@ export default function BookingWidget({
   const [passengers, setPassengers] = useState("");
   const [luggage, setLuggage] = useState("");
 
+  // defaultPickup/defaultDrop only seed state on mount by default — this
+  // keeps them in sync when the parent changes them later (e.g. clicking a
+  // "places on this route" chip should update the drop field live).
+  useEffect(() => {
+    setPickup(defaultPickup);
+  }, [defaultPickup]);
+
+  useEffect(() => {
+    setDrop(defaultDrop);
+  }, [defaultDrop]);
+
   const isRoundTrip = tripType === "Round Trip";
   const isAirport = tripType === "Airport";
   const isAirportPickup = isAirport && airportDirection === "Pickup";
   const isAirportDrop = isAirport && airportDirection === "Drop";
+  const isDistanceBasedTrip = tripType === "One Way" || tripType === "Round Trip";
+
+  const selectedVehicle = vehicleRates.find((v) => v.id === cabTypeId) ?? null;
+  const vehiclesInCategory = cabCategory
+    ? vehicleRates.filter((v) => v.category === cabCategory)
+    : [];
+
+  function handleCabCategoryChange(value: string) {
+    setCabCategory(value);
+    setCabTypeId(""); // vehicle choice no longer valid once the category changes
+  }
+
+  const distanceKm = isDistanceBasedTrip ? estimateDistanceKm(pickup, drop) : null;
+
+  // approxFare stays null whenever we can't responsibly show a number —
+  // the accompanying fareNote explains what's still needed instead of
+  // guessing.
+  let approxFare: number | null = null;
+  let fareNote: string;
+
+  if (!isDistanceBasedTrip) {
+    fareNote =
+      tripType === "Local"
+        ? "Local package fares are quoted directly — send us the hours/km on WhatsApp."
+        : "Airport transfer fares are quoted directly based on the exact pickup point.";
+  } else if (!cabCategory) {
+    fareNote = "Pick a cab type and cab to see an approx. fare.";
+  } else if (!selectedVehicle) {
+    fareNote = "Pick a cab to see an approx. fare.";
+  } else if (selectedVehicle.rate == null) {
+    fareNote = `${selectedVehicle.label} pricing is on request — we'll confirm the fare on WhatsApp.`;
+  } else if (distanceKm == null) {
+    fareNote = "Enter a pickup/drop we service (e.g. Mumbai and a listed destination) to see an approx. fare.";
+  } else {
+    approxFare = selectedVehicle.rate * distanceKm * (isRoundTrip ? 2 : 1);
+    fareNote = `${distanceKm} km ${isRoundTrip ? "(round trip)" : "one way"} × ₹${selectedVehicle.rate}/km`;
+  }
+
+  const approxFareLabel =
+    approxFare != null ? `₹${Math.round(approxFare).toLocaleString("en-IN")}` : null;
 
   const inputClasses =
     "w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/45 backdrop-blur-sm transition-colors focus:outline-2 focus:outline-saffron focus:bg-white/15 [color-scheme:dark]";
@@ -95,6 +149,8 @@ export default function BookingWidget({
       "*🚖 NEW CAB BOOKING REQUEST*",
       "───────────────────",
       `*Trip Type:* ${tripType}${isAirport ? ` (${airportDirection})` : ""}`,
+      `*Cab Type:* ${selectedVehicle ? `${selectedVehicle.label} (${selectedVehicle.category})` : "-"}`,
+      `*Approx. Fare:* ${approxFareLabel ? `${approxFareLabel} (estimate, to be confirmed)` : "To be confirmed"}`,
       `*${pickupLabel}:* ${pickup || "-"}`,
       `*${dropLabel}:* ${drop || "-"}`,
       `*${isRoundTrip ? "Departure Date" : "Date"}:* ${date || "-"}`,
@@ -290,7 +346,44 @@ export default function BookingWidget({
         </div>
 
         {/* Passenger details */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-2 mt-1 border-t border-white/15">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 pt-2 mt-1 border-t border-white/15">
+          <label className="flex flex-col gap-1 col-span-1">
+            <span className={labelClasses}>Cab Type</span>
+            <select
+              value={cabCategory}
+              onChange={(event) => handleCabCategoryChange(event.target.value)}
+              className={inputClasses}
+            >
+              <option value="" className="bg-ink text-white">
+                Select cab type
+              </option>
+              {cabTypes.map((category) => (
+                <option key={category} value={category} className="bg-ink text-white">
+                  {category}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="flex flex-col gap-1 col-span-1">
+            <span className={labelClasses}>Cab</span>
+            <select
+              value={cabTypeId}
+              onChange={(event) => setCabTypeId(event.target.value)}
+              disabled={!cabCategory}
+              className={`${inputClasses} disabled:opacity-40 disabled:cursor-not-allowed`}
+            >
+              <option value="" className="bg-ink text-white">
+                {cabCategory ? "Select cab" : "Select cab type first"}
+              </option>
+              {vehiclesInCategory.map((v) => (
+                <option key={v.id} value={v.id} className="bg-ink text-white">
+                  {v.label} {v.rate != null ? `— ₹${v.rate}/km` : "— On Request"}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <label className="flex flex-col gap-1 col-span-1">
             <span className={labelClasses}>Name</span>
             <input
@@ -343,6 +436,26 @@ export default function BookingWidget({
           >
             Search Cabs
           </button>
+        </div>
+
+        {/* Approx. fare estimate */}
+        <div className="rounded-lg border border-white/15 bg-black/20 px-3 py-2">
+          <span className="font-mono text-xs uppercase tracking-wide text-white/60">
+            Approx. Fare
+          </span>
+          {approxFareLabel ? (
+            <div className="mt-0.5 flex flex-wrap items-baseline gap-x-2">
+              <span className="text-lg font-semibold text-saffron">{approxFareLabel}</span>
+              <span className="text-xs text-white/50">{fareNote}</span>
+            </div>
+          ) : (
+            <p className="mt-0.5 text-xs text-white/50">{fareNote}</p>
+          )}
+          <p className="mt-1 text-[11px] text-white/35">
+            This is an indicative estimate only. Toll charges, parking fees, state taxes, and
+            other applicable charges are not included. The final fare is calculated based on the
+            actual kilometers traveled and will be confirmed at the time of booking.
+          </p>
         </div>
       </form>
     </div>

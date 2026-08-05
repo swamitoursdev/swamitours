@@ -1,10 +1,23 @@
+import Link from "next/link";
+import { routeSlug } from "@/lib/cab-routes";
+
+// `to` must match a destination name in lib/cab-routes.ts exactly, since
+// that's what generates the route pages (routeSlug pairs it with "Mumbai").
+// Grouped cards (multiple places in one card) now point at their own
+// combined destination entry, so each gets a real, dedicated route page.
 const destinations = [
-  { name: "Shirdi", note: "Sai Baba temple, popular day trip" },
-  { name: "Trimbakeshwar & Nashik", note: "Jyotirlinga darshan, wine country stops" },
-  { name: "Mahabaleshwar", note: "Hill station, strawberry season drives" },
-  { name: "Lonavala & Khandala", note: "Weekend getaway, monsoon route" },
-  { name: "Alibaug", note: "Beach day trip via the Belapur bridge" },
-  { name: "Matheran", note: "Car up to the base, then a short trek in" },
+  { name: "Matheran", to: "Matheran", note: "Car up to the base, then a short trek in" },
+  { name: "Lonavala & Khandala", to: "Lonavala & Khandala", note: "Weekend getaway, monsoon route" },
+  { name: "Karjat & Khopoli", to: "Karjat & Khopoli", note: "Waterfalls and resort stays, short hop from Navi Mumbai" },
+  { name: "Mahabaleshwar", to: "Mahabaleshwar", note: "Hill station, strawberry season drives" },
+  { name: "Trimbakeshwar & Nashik", to: "Trimbakeshwar & Nashik", note: "Jyotirlinga darshan, wine country stops" },
+  { name: "Shirdi & Shani Shingnapur", to: "Shirdi & Shani Shingnapur", note: "Sai Baba temple, popular day trip" },
+  { name: "Kolhapur – Jyotiba & Mahalakshmi", to: "Kolhapur – Jyotiba & Mahalakshmi", note: "Temple circuit, full day drive" },
+  {
+    name: "Konkan – Harihareshwar, Shrivardhan, Diveagar Beach, Aare Ware Beach, Ganpatipule & Alibaug",
+    to: "Konkan",
+    note: "Coastal route, beaches and temple towns strung along the way",
+  },
 ];
 
 export default function Destinations() {
@@ -24,9 +37,10 @@ export default function Destinations() {
 
       <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {destinations.map((dest, i) => (
-          <div
+          <Link
             key={dest.name}
-            className="group relative overflow-hidden rounded-2xl h-40 flex flex-col justify-end p-5"
+            href={`/${routeSlug("Mumbai", dest.to)}`}
+            className="group relative overflow-hidden rounded-2xl h-40 flex flex-col justify-end p-5 transition-transform hover:-translate-y-0.5"
             style={{
               background:
                 i % 2 === 0
@@ -48,7 +62,7 @@ export default function Destinations() {
               {dest.name}
             </h3>
             <p className="mt-1 text-xs text-white/80">{dest.note}</p>
-          </div>
+          </Link>
         ))}
       </div>
     </section>
