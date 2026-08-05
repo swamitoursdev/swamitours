@@ -93,11 +93,15 @@ export default function BookingWidget({
 
   const inputClasses =
     "w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/45 backdrop-blur-sm transition-colors focus:outline-2 focus:outline-saffron focus:bg-white/15 [color-scheme:dark]";
-  const timeInputClasses = `${inputClasses} [&::-webkit-calendar-picker-indicator]:[filter:brightness(0)_saturate(100%)_invert(8%)_sepia(54%)_saturate(6763%)_hue-rotate(240deg)_brightness(87%)_contrast(139%)]`;
+  const timeInputClasses = `${inputClasses} [&::-webkit-calendar-picker-indicator]:[filter:brightness(0)_saturate(100%)_invert(8%)_sepia(54%)_saturate(6763%)_hue-rotate(240deg)_brightness(87%)_contrast(139%)] [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer`;
+  // Date inputs need the same icon-color fix as time inputs — otherwise the
+  // native calendar icon renders dark-on-dark and disappears, especially on
+  // mobile browsers.
+  const dateInputClasses = timeInputClasses;
   const labelClasses = "text-xs font-mono uppercase tracking-wide text-white/60";
 
   const petsField = (
-    <div className="flex flex-col gap-1 flex-1 min-w-40">
+    <div className="flex flex-col gap-1 col-span-2 sm:col-span-1">
       <span className={labelClasses}>Carrying Pets?</span>
       <div className="flex gap-1 rounded-lg border border-white/25 bg-white/5 p-1">
         <button
@@ -133,6 +137,53 @@ export default function BookingWidget({
     </div>
   );
 
+  // <input type="date"> always stores its value as yyyy-mm-dd regardless of
+  // display format, so we convert to dd/mm/yyyy for the outgoing message.
+  function formatDateDMY(isoDate: string) {
+    if (!isoDate) return "";
+    const [year, month, day] = isoDate.split("-");
+    return `${day}/${month}/${year}`;
+  }
+
+  // The browser renders a native date input's closed-state text (mm/dd/yyyy,
+  // dd/mm/yyyy, etc.) based on the device/OS locale — there's no reliable
+  // cross-browser way to force it via CSS or the `lang` attribute alone. To
+  // guarantee dd/mm/yyyy everywhere, we make the native input's own text
+  // transparent and overlay our own formatted text on top. The native input
+  // (and its calendar icon + picker) still works exactly as before; only the
+  // text you *see* is now ours.
+  function DateField({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+  }) {
+    return (
+      <label className="flex flex-col gap-1">
+        <span className={labelClasses}>{label}</span>
+        <div className="relative">
+          <input
+            type="date"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            aria-label={`${label} (dd/mm/yyyy)`}
+            className={`${dateInputClasses} text-transparent caret-transparent`}
+          />
+          <span className="pointer-events-none absolute inset-0 flex items-center px-3 pr-9 text-sm">
+            {value ? (
+              <span className="text-white">{formatDateDMY(value)}</span>
+            ) : (
+              <span className="text-white/45">dd/mm/yyyy</span>
+            )}
+          </span>
+        </div>
+      </label>
+    );
+  }
+
   function swapLocations() {
     setPickup(drop);
     setDrop(pickup);
@@ -153,12 +204,15 @@ export default function BookingWidget({
       `*Approx. Fare:* ${approxFareLabel ? `${approxFareLabel} (estimate, to be confirmed)` : "To be confirmed"}`,
       `*${pickupLabel}:* ${pickup || "-"}`,
       `*${dropLabel}:* ${drop || "-"}`,
-      `*${isRoundTrip ? "Departure Date" : "Date"}:* ${date || "-"}`,
+      `*${isRoundTrip ? "Departure Date" : "Date"}:* ${formatDateDMY(date) || "-"}`,
       `*${isRoundTrip ? "Departure Time" : "Time"}:* ${time || "-"}`,
     ];
 
     if (isRoundTrip) {
-      lines.push(`*Return Date:* ${returnDate || "-"}`, `*Return Time:* ${returnTime || "-"}`);
+      lines.push(
+        `*Return Date:* ${formatDateDMY(returnDate) || "-"}`,
+        `*Return Time:* ${returnTime || "-"}`
+      );
     }
 
     lines.push(
@@ -221,116 +275,125 @@ export default function BookingWidget({
         className="flex flex-col gap-2 p-2 sm:p-3 pt-3 mt-2 border-t border-white/15"
       >
         {/* Route / date / time */}
-        <div className="flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1 flex-1 min-w-37.5">
-            <span className={labelClasses}>
-              {isAirportPickup ? "Pickup Airport" : "Pickup Location"}
-            </span>
-            {isAirportPickup ? (
-              <AutocompleteInput
-                value={pickup}
-                onChange={setPickup}
-                options={airports}
-                placeholder="Eg: Adampur Airport"
-                className={inputClasses}
-              />
-            ) : (
+        <div className="flex flex-col gap-2">
+          {/* Date + Time */}
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex flex-col gap-1">
+              <span className={labelClasses}>
+                {isRoundTrip ? "Departure Date" : "Date"}
+              </span>
               <input
-                type="text"
-                value={pickup}
-                onChange={(event) => setPickup(event.target.value)}
-                placeholder="Eg: Nashik"
-                className={inputClasses}
+                type="date"
+                lang="en-GB"
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+                className={dateInputClasses}
               />
-            )}
-          </label>
+            </label>
 
-          <button
-            type="button"
-            onClick={swapLocations}
-            aria-label="Swap pickup and drop"
-            className="shrink-0 rounded-full border border-white/25 bg-white/10 p-2.5 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
+            <label className="flex flex-col gap-1">
+              <span className={labelClasses}>
+                {isRoundTrip ? "Departure Time" : "Time"}
+              </span>
+              <input
+                type="time"
+                value={time}
+                onChange={(event) => setTime(event.target.value)}
+                className={timeInputClasses}
+              />
+            </label>
+          </div>
+
+          {/* Pickup + swap + Drop */}
+          <div className="flex items-end gap-2">
+            <label className="flex flex-col gap-1 flex-1 min-w-0">
+              <span className={labelClasses}>
+                {isAirportPickup ? "Pickup Airport" : "Pickup Location"}
+              </span>
+              {isAirportPickup ? (
+                <AutocompleteInput
+                  value={pickup}
+                  onChange={setPickup}
+                  options={airports}
+                  placeholder="Eg: Adampur Airport"
+                  className={inputClasses}
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={pickup}
+                  onChange={(event) => setPickup(event.target.value)}
+                  placeholder="Eg: Nashik"
+                  className={inputClasses}
+                />
+              )}
+            </label>
+
+            <button
+              type="button"
+              onClick={swapLocations}
+              aria-label="Swap pickup and drop"
+              className="shrink-0 rounded-full border border-white/25 bg-white/10 p-2.5 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
             >
-              <path d="M17 3l4 4-4 4" />
-              <path d="M21 7H9" />
-              <path d="M7 21l-4-4 4-4" />
-              <path d="M3 17h12" />
-            </svg>
-          </button>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
+                <path d="M17 3l4 4-4 4" />
+                <path d="M21 7H9" />
+                <path d="M7 21l-4-4 4-4" />
+                <path d="M3 17h12" />
+              </svg>
+            </button>
 
-          <label className="flex flex-col gap-1 flex-1 min-w-37.5">
-            <span className={labelClasses}>
-              {tripType === "Local"
-                ? "Package"
-                : isAirportDrop
-                  ? "Drop Airport"
-                  : "Drop Location"}
-            </span>
-            {isAirportDrop ? (
-              <AutocompleteInput
-                value={drop}
-                onChange={setDrop}
-                options={airports}
-                placeholder="Eg: Adampur Airport"
-                className={inputClasses}
-              />
-            ) : (
-              <input
-                type="text"
-                value={drop}
-                onChange={(event) => setDrop(event.target.value)}
-                placeholder={tripType === "Local" ? "4hr / 40km" : "Eg: Shirdi"}
-                className={inputClasses}
-              />
-            )}
-          </label>
+            <label className="flex flex-col gap-1 flex-1 min-w-0">
+              <span className={labelClasses}>
+                {tripType === "Local"
+                  ? "Package"
+                  : isAirportDrop
+                    ? "Drop Airport"
+                    : "Drop Location"}
+              </span>
+              {isAirportDrop ? (
+                <AutocompleteInput
+                  value={drop}
+                  onChange={setDrop}
+                  options={airports}
+                  placeholder="Eg: Adampur Airport"
+                  className={inputClasses}
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={drop}
+                  onChange={(event) => setDrop(event.target.value)}
+                  placeholder={tripType === "Local" ? "4hr / 40km" : "Eg: Shirdi"}
+                  className={inputClasses}
+                />
+              )}
+            </label>
+          </div>
 
-          <label className="flex flex-col gap-1 flex-1 min-w-35">
-            <span className={labelClasses}>
-              {isRoundTrip ? "Departure Date" : "Date"}
-            </span>
-            <input
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-              className={inputClasses}
-            />
-          </label>
-
-          <label className="flex flex-col gap-1 flex-1 min-w-32.5">
-            <span className={labelClasses}>
-              {isRoundTrip ? "Departure Time" : "Time"}
-            </span>
-            <input
-              type="time"
-              value={time}
-              onChange={(event) => setTime(event.target.value)}
-              className={timeInputClasses}
-            />
-          </label>
-
+          {/* Return Date + Time */}
           {isRoundTrip && (
-            <>
-              <label className="flex flex-col gap-1 flex-1 min-w-35">
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex flex-col gap-1">
                 <span className={labelClasses}>Return Date</span>
                 <input
                   type="date"
+                  lang="en-GB"
                   value={returnDate}
                   onChange={(event) => setReturnDate(event.target.value)}
-                  className={inputClasses}
+                  className={dateInputClasses}
                 />
               </label>
 
-              <label className="flex flex-col gap-1 flex-1 min-w-32.5">
+              <label className="flex flex-col gap-1">
                 <span className={labelClasses}>Return Time</span>
                 <input
                   type="time"
@@ -339,14 +402,12 @@ export default function BookingWidget({
                   className={timeInputClasses}
                 />
               </label>
-            </>
+            </div>
           )}
-
-          {petsField}
         </div>
 
         {/* Passenger details */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 pt-2 mt-1 border-t border-white/15">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-2 pt-2 mt-1 border-t border-white/15">
           <label className="flex flex-col gap-1 col-span-1">
             <span className={labelClasses}>Cab Type</span>
             <select
@@ -429,6 +490,8 @@ export default function BookingWidget({
               className={inputClasses}
             />
           </label>
+
+          {petsField}
 
           <button
             type="submit"
