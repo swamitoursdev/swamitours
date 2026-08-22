@@ -22,11 +22,11 @@ const packages = [
   { title: "Ashtavinayak Darshan", note: "Full-circuit temple tour package", price: "₹8,499", unit: "/day", tone: "var(--color-saffron)" },
 ];
 
-// Images live at /assets/Taxi Packages/<exact package title>.png — dropped in
+// Images live at /assets/Taxi Packages/<exact package title>.webp — dropped in
 // over time, so a missing file is expected and falls back to the tone
 // gradient banner rather than breaking the card.
 function packageImageSrc(title: string): string {
-  return encodeURI(`/assets/Taxi Packages/${title}.png`);
+  return encodeURI(`/assets/Taxi Packages/${title}.webp`);
 }
 
 /** Observes each card and marks it visible the first time it enters the viewport. */
