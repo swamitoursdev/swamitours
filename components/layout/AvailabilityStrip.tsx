@@ -12,7 +12,7 @@ const services = [
 export default function AvailabilityStrip() {
   return (
     <section className="bg-ink py-8">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8 space-y-6 text-xs">
+      <div className="w-full px-5 sm:px-8 lg:px-12 space-y-6 text-xs">
         <div>
           <div className="flex items-center justify-between text-white/50">
             <p className="uppercase tracking-wide">Available in States</p>

@@ -1,12 +1,20 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const quickLinks = ["Home", "Services", "Fleet", "Destinations", "Contact"];
+
+const policyLinks = [
+  { label: "Terms And Conditions", href: "/Policy/terms-and-conditions" },
+  { label: "Privacy Policy", href: "/Policy/privacy-policy" },
+  { label: "Cancellation Policy", href: "/Policy/cancellation-policy" },
+  { label: "Return And Refund Policy", href: "/Policy/return-and-refund-policy" },
+];
 
 export default function Footer() {
   return (
     <footer id="contact" className="bg-ink text-white/70">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-        <div>
+      <div className="w-full px-5 sm:px-8 lg:px-12 py-14 flex flex-col sm:flex-row sm:flex-wrap sm:justify-between gap-x-10 gap-y-10">
+        <div className="w-full sm:w-auto sm:max-w-xs">
           <div className="flex items-center gap-2">
             <Image
               src="/assets/swami-logo.jpeg"
@@ -28,7 +36,7 @@ export default function Footer() {
           </p>
         </div>
 
-        <div>
+        <div className="w-full sm:w-auto">
           <p className="font-mono text-xs uppercase tracking-wide text-saffron">
             Quick Links
           </p>
@@ -43,7 +51,22 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div>
+        <div className="w-full sm:w-auto">
+          <p className="font-mono text-xs uppercase tracking-wide text-saffron">
+            Our Policies
+          </p>
+          <ul className="mt-4 space-y-2 text-sm">
+            {policyLinks.map((policy) => (
+              <li key={policy.href}>
+                <Link href={policy.href} className="hover:text-white">
+                  {policy.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="w-full sm:w-auto">
           <p className="font-mono text-xs uppercase tracking-wide text-saffron">
             Contact
           </p>
@@ -66,7 +89,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div>
+        <div className="w-full sm:w-auto">
           <p className="font-mono text-xs uppercase tracking-wide text-saffron">
             Hours
           </p>
@@ -78,7 +101,16 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10 py-5 text-center text-xs text-white/40">
-        © {new Date().getFullYear()} Swami Tours. All rights reserved.
+        © {new Date().getFullYear()} Swami Tours. A brand of Shree Swami
+        Samarth Enterprises. | Developed by{" "}
+        <a
+          href="https://navkon.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-white/70"
+        >
+          Navkon Labs
+        </a>
       </div>
     </footer>
   );

@@ -21,11 +21,11 @@ export default function Home() {
     <>
       <Header />
       <main className="flex-1">
-        <Hero />
-        <Services />
-        <Fleet />
+        <Hero />        
         <TaxiPackages />
         <Destinations />
+        <Services />
+        <Fleet />
         <HowItWorks />
         <TopPlaces />
         <Testimonials />

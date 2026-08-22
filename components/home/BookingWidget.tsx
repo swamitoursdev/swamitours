@@ -34,6 +34,7 @@ export default function BookingWidget({
   const [phone, setPhone] = useState("");
   const [passengers, setPassengers] = useState("");
   const [luggage, setLuggage] = useState("");
+  const [notes, setNotes] = useState("");
 
   // defaultPickup/defaultDrop only seed state on mount by default — this
   // keeps them in sync when the parent changes them later (e.g. clicking a
@@ -267,6 +268,10 @@ export default function BookingWidget({
       `*Luggage:* ${luggage || "-"} bag(s)`,
       `*Carrying Pets:* ${carryingPets ? "Yes 🐾" : "No"}`
     );
+
+    if (notes.trim()) {
+      lines.push("", "*📝 NOTES*", "───────────────────", notes.trim());
+    }
 
     lines.push(
       "",
@@ -535,6 +540,18 @@ export default function BookingWidget({
             Search Cabs
           </button>
         </div>
+
+        {/* Notes */}
+        <label className="flex flex-col gap-1">
+          <span className={labelClasses}>Notes (optional)</span>
+          <textarea
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            placeholder="Any specific instructions — e.g. child seat, extra stop, preferred route..."
+            rows={2}
+            className={`${inputClasses} resize-none`}
+          />
+        </label>
 
         {/* Approx. fare estimate */}
         <div className="rounded-lg border border-white/15 bg-black/20 px-3 py-2">
