@@ -1,3 +1,7 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { fareRows } from "@/lib/cab-routes";
 
 const tones = [
@@ -7,9 +11,42 @@ const tones = [
   "var(--color-moss-dark)",
 ];
 
+/**
+ * Maps a row's vehicle text to a photo in /public/assets/Fleet.
+ * Keys are checked longest-first so "crysta"/"hycross" win over the
+ * generic "innova" before it does.
+ */
+const fleetImages: Record<string, string> = {
+  crysta: "/assets/Fleet/Crysta.webp",
+  hycross: "/assets/Fleet/Hycross.webp",
+  fortuner: "/assets/Fleet/Fortuner.webp",
+  scorpio: "/assets/Fleet/Scorpio.webp",
+  ertiga: "/assets/Fleet/Ertiga.webp",
+  wagonr: "/assets/Fleet/WagonR.webp",
+  accent: "/assets/Fleet/Accent.webp",
+  etios: "/assets/Fleet/Etios.webp",
+  innova: "/assets/Fleet/Innova.webp",
+  carens: "/assets/Fleet/Carens.webp",
+  urbania: "/assets/Fleet/Urbania.webp",
+  tempo: "/assets/Fleet/Tempo.webp",
+  traveller: "/assets/Fleet/Tempo.webp",
+  traveler: "/assets/Fleet/Tempo.webp",
+  prime: "/assets/Fleet/Prime.webp",
+  dzire: "/assets/Fleet/Prime.webp",
+  bus: "/assets/Fleet/Bus.webp",
+};
+
+function resolveFleetImage(...text: string[]): string | null {
+  const normalized = text.join(" ").toLowerCase().replace(/[^a-z]/g, "");
+  const key = Object.keys(fleetImages)
+    .sort((a, b) => b.length - a.length)
+    .find((k) => normalized.includes(k));
+  return key ? fleetImages[key] : null;
+}
+
 function CarMark({ tone }: { tone: string }) {
   return (
-    <svg viewBox="0 0 120 60" width="100%" height="56" aria-hidden="true">
+    <svg viewBox="0 0 120 60" width="100%" height="100%" aria-hidden="true">
       <rect x="8" y="26" width="104" height="20" rx="8" fill={tone} opacity="0.15" />
       <path
         d="M18 40 L26 22 Q30 16 40 16 H80 Q90 16 94 22 L102 40"
@@ -26,47 +63,167 @@ function CarMark({ tone }: { tone: string }) {
   );
 }
 
+/** Observes each card and marks it visible the first time it enters the viewport. */
+function useRevealOnScroll(count: number) {
+  const refs = useRef<Array<HTMLDivElement | null>>([]);
+  const [visible, setVisible] = useState<boolean[]>(() => Array(count).fill(false));
+
+  useEffect(() => {
+    const nodes = refs.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const idx = Number((entry.target as HTMLElement).dataset.index);
+          setVisible((prev) => {
+            if (prev[idx]) return prev;
+            const next = [...prev];
+            next[idx] = true;
+            return next;
+          });
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
+    );
+
+    nodes.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  return { refs, visible };
+}
+
 export default function Fleet() {
+  const { refs, visible } = useRevealOnScroll(fareRows.length);
+  const [broken, setBroken] = useState<boolean[]>(() => Array(fareRows.length).fill(false));
+
   return (
-    <section id="fleet" className="bg-moss/5 py-20">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="max-w-lg">
+    <section id="fleet" className="w-full bg-cream py-16 sm:py-20 md:py-28 overflow-hidden">
+      <div className="mx-auto w-full max-w-[1800px] px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-2xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-saffron-dark">
             The fleet
           </p>
-          <h2 className="mt-3 font-display text-3xl font-semibold text-ink">
+          <h2 className="mt-3 font-display text-3xl md:text-4xl font-semibold text-ink">
             Pick the ride that fits the trip.
           </h2>
           <p className="mt-3 text-sm text-ink/60">
             From a quick city hatchback to a Tempo Traveller for the whole
             group — every category below is available to book by Cab Type.
           </p>
+
+          {/* Animated route line — a small nod to the road the fleet actually runs */}
+          <svg
+            className="route-line mx-auto mt-6 w-full max-w-xs"
+            viewBox="0 0 320 8"
+            aria-hidden="true"
+          >
+            <line
+              x1="0"
+              y1="4"
+              x2="320"
+              y2="4"
+              stroke="var(--color-saffron-dark)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeDasharray="1 14"
+            />
+          </svg>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {fareRows.map((row, i) => (
-            <div
-              key={`${row.category}-${i}`}
-              className="rounded-2xl bg-white p-5 border border-ink/10"
-            >
-              <CarMark tone={tones[i % tones.length]} />
-              <p className="mt-4 font-mono text-xs uppercase tracking-[0.15em] text-saffron-dark">
-                {row.category}
-              </p>
-              <h3 className="mt-1 font-display text-base font-semibold text-ink">
-                {row.vehicles}
-              </h3>
-              <p className="mt-2 text-sm font-medium text-ink/65">{row.rate}</p>
-              <a
-                href="tel:+919324378802"
-                className="mt-4 inline-block text-sm font-medium text-saffron-dark hover:text-saffron"
+        <div className="mt-10 sm:mt-12 flex flex-wrap justify-center gap-5 md:gap-6">
+          {fareRows.map((row, i) => {
+            const tone = tones[i % tones.length];
+            const imageSrc = resolveFleetImage(row.category, row.vehicles);
+            const showImage = imageSrc && !broken[i];
+
+            return (
+              <div
+                key={`${row.category}-${i}`}
+                ref={(el) => {
+                  refs.current[i] = el;
+                }}
+                data-index={i}
+                className={`fleet-card group w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] rounded-2xl bg-white p-5 border border-ink/10 transition-all duration-700 ease-out hover:-translate-y-1.5 hover:border-ink/20 hover:shadow-xl ${
+                  visible[i] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+                style={{ transitionDelay: visible[i] ? `${(i % 4) * 90}ms` : "0ms" }}
               >
-                Call for rates →
-              </a>
-            </div>
-          ))}
+                <div className="relative h-32 sm:h-40 rounded-xl overflow-hidden bg-cream/60">
+                  <div
+                    className="absolute inset-6 rounded-full blur-2xl opacity-25 transition-opacity duration-500 group-hover:opacity-40"
+                    style={{ background: tone }}
+                    aria-hidden="true"
+                  />
+                  <div className="relative h-full w-full transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-[1.04]">
+                    {showImage ? (
+                      <Image
+                        src={imageSrc}
+                        alt={row.vehicles}
+                        fill
+                        sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 90vw"
+                        className="object-contain p-2"
+                        priority={i === 0}
+                        onError={() =>
+                          setBroken((prev) => {
+                            const next = [...prev];
+                            next[i] = true;
+                            return next;
+                          })
+                        }
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center p-3">
+                        <CarMark tone={tone} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <p className="mt-4 font-mono text-xs uppercase tracking-[0.15em] text-saffron-dark">
+                  {row.category}
+                </p>
+                <h3 className="mt-1 font-display text-base font-semibold text-ink">
+                  {row.vehicles}
+                </h3>
+                <p className="mt-2 text-sm font-medium text-ink/65">{row.rate}</p>
+
+                <a
+                  href="tel:+919324378802"
+                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-saffron-dark transition-colors hover:text-saffron"
+                >
+                  Call for rates
+                  <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
+                    →
+                  </span>
+                </a>
+              </div>
+            );
+          })}
         </div>
       </div>
+
+      <style jsx>{`
+        .route-line {
+          stroke-dashoffset: 0;
+        }
+        @media (prefers-reduced-motion: no-preference) {
+          .route-line line {
+            animation: dash-travel 6s linear infinite;
+          }
+        }
+        @keyframes dash-travel {
+          to {
+            stroke-dashoffset: -60;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .fleet-card {
+            transition: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
