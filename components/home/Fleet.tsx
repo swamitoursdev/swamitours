@@ -24,7 +24,7 @@ const fleetImages: Record<string, string> = {
   ertiga: "/assets/Fleet/Ertiga.webp",
   wagonr: "/assets/Fleet/WagonR.webp",
   accent: "/assets/Fleet/Accent.webp",
-  etios: "/assets/Fleet/Etios.webp",
+  etios: "/assets/Fleet/Dzire.webp",
   innova: "/assets/Fleet/Innova.webp",
   carens: "/assets/Fleet/Carens.webp",
   urbania: "/assets/Fleet/Urbania.webp",
