@@ -145,25 +145,27 @@ export default function Fleet() {
                   refs.current[i] = el;
                 }}
                 data-index={i}
-                className={`fleet-card group w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] rounded-2xl bg-white p-5 border border-ink/10 transition-all duration-700 ease-out hover:-translate-y-1.5 hover:border-ink/20 hover:shadow-xl ${
+                className={`fleet-card group relative w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] transition-all duration-700 ease-out hover:z-20 ${
                   visible[i] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
                 style={{ transitionDelay: visible[i] ? `${(i % 4) * 90}ms` : "0ms" }}
               >
-                <div className="relative h-32 sm:h-40 rounded-xl overflow-hidden bg-cream/60">
-                  <div
-                    className="absolute inset-6 rounded-full blur-2xl opacity-25 transition-opacity duration-500 group-hover:opacity-40"
-                    style={{ background: tone }}
-                    aria-hidden="true"
-                  />
-                  <div className="relative h-full w-full transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-[1.04]">
-                    {showImage ? (
+                {showImage ? (
+                  // aspect-3/2 assumed to match the Fleet webp photos — adjust if the
+                  // actual files use a different native ratio.
+                  <div className="relative aspect-3/2 w-full">
+                    <div
+                      className="absolute left-1/2 top-1/2 h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl opacity-30 transition-opacity duration-500 group-hover:opacity-50"
+                      style={{ background: tone }}
+                      aria-hidden="true"
+                    />
+                    <div className="relative h-full w-full scale-[0.9] transition-transform duration-500 ease-out group-hover:scale-[1.05]">
                       <Image
                         src={imageSrc}
                         alt={row.vehicles}
                         fill
-                        sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 90vw"
-                        className="object-contain p-2"
+                        unoptimized
+                        className="object-contain drop-shadow-lg"
                         priority={i === 0}
                         onError={() =>
                           setBroken((prev) => {
@@ -173,31 +175,33 @@ export default function Fleet() {
                           })
                         }
                       />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center p-3">
-                        <CarMark tone={tone} />
-                      </div>
-                    )}
+                    </div>
                   </div>
+                ) : (
+                  <div className="relative flex aspect-3/2 w-full items-center justify-center rounded-xl bg-cream/60 p-3 transition-transform duration-500 ease-out group-hover:scale-105">
+                    <CarMark tone={tone} />
+                  </div>
+                )}
+
+                <div className="-mt-1 rounded-2xl border border-ink/10 bg-white p-5 transition-all duration-300 group-hover:border-ink/20 group-hover:shadow-xl">
+                  <p className="font-mono text-xs uppercase tracking-[0.15em] text-saffron-dark">
+                    {row.category}
+                  </p>
+                  <h3 className="mt-1 font-display text-base font-semibold text-ink">
+                    {row.vehicles}
+                  </h3>
+                  <p className="mt-2 text-sm font-medium text-ink/65">{row.rate}</p>
+
+                  <a
+                    href="tel:+919324378802"
+                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-saffron-dark transition-colors hover:text-saffron"
+                  >
+                    Call for rates
+                    <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
+                      →
+                    </span>
+                  </a>
                 </div>
-
-                <p className="mt-4 font-mono text-xs uppercase tracking-[0.15em] text-saffron-dark">
-                  {row.category}
-                </p>
-                <h3 className="mt-1 font-display text-base font-semibold text-ink">
-                  {row.vehicles}
-                </h3>
-                <p className="mt-2 text-sm font-medium text-ink/65">{row.rate}</p>
-
-                <a
-                  href="tel:+919324378802"
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-saffron-dark transition-colors hover:text-saffron"
-                >
-                  Call for rates
-                  <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
-                    →
-                  </span>
-                </a>
               </div>
             );
           })}

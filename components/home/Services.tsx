@@ -76,82 +76,84 @@ export default function Services() {
   }
 
   return (
-    <section id="services" className="mx-auto max-w-6xl px-5 sm:px-8 py-14 sm:py-20">
-      <div className="max-w-lg">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-saffron-dark">
-          What we run
-        </p>
-        <h2 className="mt-3 font-display text-2xl font-semibold text-ink sm:text-3xl">
-          One fleet, different kinds of trips.
-        </h2>
-      </div>
-
-      {/* Tabs */}
-      <div
-        role="tablist"
-        aria-label="Our services"
-        className="mt-8 flex flex-wrap justify-center gap-x-4 gap-y-2 border-b border-ink/10 pb-px sm:mt-10 sm:gap-x-6"
-      >
-        {services.map((service, index) => {
-          const isActive = index === active;
-          return (
-            <button
-              key={service.title}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => selectTab(index)}
-              className={`whitespace-nowrap border-b-2 pb-3 text-sm font-medium transition-colors active:scale-95 ${
-                isActive
-                  ? "border-saffron text-ink"
-                  : "border-transparent text-ink/50 hover:text-ink/80"
-              }`}
-            >
-              <span className="inline-flex items-center gap-1.5">
-                {service.title}
-                {service.highlight && (
-                  <span className="rounded-full bg-saffron/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-saffron-dark">
-                    Popular
-                  </span>
-                )}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Panel */}
-      <div
-        role="tabpanel"
-        className={`mt-6 grid overflow-hidden rounded-xl border border-ink/10 motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out sm:mt-8 sm:grid-cols-2 sm:rounded-2xl ${
-          entered
-            ? "translate-x-0 opacity-100"
-            : fromRight
-              ? "translate-x-3 opacity-0"
-              : "-translate-x-3 opacity-0"
-        }`}
-      >
-        <div className="order-last flex flex-col justify-center gap-4 bg-ink p-6 sm:order-0 sm:p-10">
-          <h3 className="font-display text-xl font-semibold text-white sm:text-2xl">
-            {current.title}
-          </h3>
-          <p className="text-sm leading-relaxed text-white/70">{current.desc}</p>
-          <a
-            href="#booking"
-            className="mt-1 inline-flex w-full items-center justify-center rounded-lg bg-saffron px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-saffron-dark active:scale-95 sm:mt-2 sm:w-fit sm:justify-start"
-          >
-            Explore More
-          </a>
+    <section id="services" className="w-full px-5 sm:px-8 py-14 sm:py-20">
+      <div className="mx-auto max-w-[1800px] w-full">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-saffron-dark">
+            What we run
+          </p>
+          <h2 className="mt-3 font-display text-2xl font-semibold text-ink sm:text-3xl">
+            One fleet, different kinds of trips.
+          </h2>
         </div>
 
-        <div className="min-h-40 overflow-hidden sm:min-h-0">
-          <img
-            src={current.image}
-            alt={current.title}
-            className={`h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out ${
-              entered ? "scale-100" : "scale-105"
-            }`}
-          />
+        {/* Tabs */}
+        <div
+          role="tablist"
+          aria-label="Our services"
+          className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-3 border-b border-ink/10 pb-px sm:mt-10 sm:gap-x-10"
+        >
+          {services.map((service, index) => {
+            const isActive = index === active;
+            return (
+              <button
+                key={service.title}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => selectTab(index)}
+                className={`whitespace-nowrap border-b-2 pb-4 text-base font-medium transition-colors active:scale-95 sm:text-lg ${
+                  isActive
+                    ? "border-saffron text-ink"
+                    : "border-transparent text-ink/50 hover:text-ink/80"
+                }`}
+              >
+                <span className="inline-flex items-center gap-2">
+                  {service.title}
+                  {service.highlight && (
+                    <span className="rounded-full bg-saffron/15 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-saffron-dark">
+                      Popular
+                    </span>
+                  )}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Panel */}
+        <div
+          role="tabpanel"
+          className={`mx-auto mt-6 grid w-full overflow-hidden rounded-xl border border-ink/10 motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out sm:mt-8 sm:h-130 sm:grid-cols-2 sm:rounded-2xl ${
+            entered
+              ? "translate-x-0 opacity-100"
+              : fromRight
+                ? "translate-x-3 opacity-0"
+                : "-translate-x-3 opacity-0"
+          }`}
+        >
+          <div className="order-last flex flex-col justify-center gap-5 bg-ink p-8 sm:order-0 sm:p-14 lg:p-16">
+            <h3 className="font-display text-2xl font-semibold text-white sm:text-3xl">
+              {current.title}
+            </h3>
+            <p className="max-w-md text-base leading-relaxed text-white/70">{current.desc}</p>
+            <a
+              href="#booking"
+              className="mt-1 inline-flex w-full items-center justify-center rounded-lg bg-saffron px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-saffron-dark active:scale-95 sm:mt-2 sm:w-fit sm:justify-start"
+            >
+              Explore More
+            </a>
+          </div>
+
+          <div className="h-64 overflow-hidden sm:h-full">
+            <img
+              src={current.image}
+              alt={current.title}
+              className={`h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out ${
+                entered ? "scale-100" : "scale-105"
+              }`}
+            />
+          </div>
         </div>
       </div>
     </section>
