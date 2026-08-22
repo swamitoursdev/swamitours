@@ -40,7 +40,7 @@ export default function Destinations() {
   return (
     <section id="destinations" className="w-full px-5 sm:px-8 py-16 sm:py-20">
       <div className="mx-auto max-w-[1800px] w-full">
-        <div className="max-w-lg">
+        <div className="mx-auto max-w-lg text-center">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-saffron-dark">
             Where we go
           </p>
@@ -52,7 +52,7 @@ export default function Destinations() {
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="mt-12 flex flex-wrap justify-center gap-5">
           {destinations.map((dest, i) => {
             const imageSrc = destinationImageSrc(dest.image);
             const showImage = !broken[i];
@@ -65,7 +65,7 @@ export default function Destinations() {
               <Link
                 key={dest.name}
                 href={`/${routeSlug("Mumbai", dest.to)}`}
-                className="group relative overflow-hidden rounded-2xl h-40 flex flex-col justify-end p-5 transition-transform hover:-translate-y-0.5"
+                className="group relative w-full sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-14px)] overflow-hidden rounded-2xl h-40 flex flex-col justify-end p-5 transition-transform hover:-translate-y-0.5"
                 style={!showImage ? { background: fallbackGradient } : undefined}
               >
                 {showImage && (
@@ -87,7 +87,7 @@ export default function Destinations() {
                     />
                     {/* dark scrim so white text stays readable over a photo */}
                     <div
-                      className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent"
+                      className="absolute inset-0 bg-linear-to-t from-black/75 via-black/15 to-transparent"
                       aria-hidden="true"
                     />
                   </>
