@@ -1,10 +1,11 @@
-//components\auth\LoginForm.tsx
+//components\auth\SignupForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
@@ -20,18 +21,20 @@ function isMobileOrInApp() {
   return isMobile || isInApp;
 }
 
-type LoginFormProps = {
-  onSwitchToSignup?: () => void;
+type SignupFormProps = {
+  onSwitchToLogin?: () => void;
 };
 
-export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
+export default function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Catch the result when the browser comes back from a redirect-based sign-in
+  // Catch the result when the browser comes back from a redirect-based sign-up
   // (needed for mobile / in-app browsers where signInWithPopup fails).
   useEffect(() => {
     getRedirectResult(auth)
@@ -44,12 +47,25 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
+  async function handleEmailSignup(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      if (name.trim()) {
+        await updateProfile(cred.user, { displayName: name.trim() });
+      }
       router.push("/");
     } catch (err) {
       setError(getFriendlyError(err));
@@ -58,7 +74,7 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
     }
   }
 
-  async function handleGoogleLogin() {
+  async function handleGoogleSignup() {
     setError(null);
     setLoading(true);
     try {
@@ -79,9 +95,18 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
   return (
     <form
-      onSubmit={handleEmailLogin}
+      onSubmit={handleEmailSignup}
       className="mx-auto max-w-sm space-y-4 rounded-xl border border-ink/10 bg-white p-6"
     >
+      <FormField
+        label="Full name"
+        name="name"
+        type="text"
+        placeholder="Your name"
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
       <FormField
         label="Email"
         name="email"
@@ -100,11 +125,20 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+      <FormField
+        label="Confirm password"
+        name="confirmPassword"
+        type="password"
+        placeholder="••••••••"
+        required
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button type="submit" disabled={loading} className={`${primaryButton} w-full disabled:opacity-60`}>
-        {loading ? "Logging in..." : "Login"}
+        {loading ? "Creating account..." : "Create account"}
       </button>
 
       <div className="flex items-center gap-3 text-xs text-ink/40">
@@ -115,7 +149,7 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
       <button
         type="button"
-        onClick={handleGoogleLogin}
+        onClick={handleGoogleSignup}
         disabled={loading}
         className="flex w-full items-center justify-center gap-2 rounded-lg border border-ink/10 bg-white py-2 text-sm font-medium text-ink hover:bg-ink/5 disabled:opacity-60"
       >
@@ -124,17 +158,17 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
       </button>
 
       <p className="text-center text-xs text-ink/60">
-        New here?{" "}
-        {onSwitchToSignup ? (
+        Already have an account?{" "}
+        {onSwitchToLogin ? (
           <button
             type="button"
-            onClick={onSwitchToSignup}
+            onClick={onSwitchToLogin}
             className="text-saffron-dark underline-offset-2 hover:underline"
           >
-            Create an account
+            Login
           </button>
         ) : (
-          <a href="/signup" className="text-saffron-dark">Create an account</a>
+          <a href="/login" className="text-saffron-dark">Login</a>
         )}
       </p>
     </form>
@@ -144,16 +178,18 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 function getFriendlyError(err: unknown): string {
   const code = (err as { code?: string })?.code ?? "";
   switch (code) {
-    case "auth/invalid-credential":
-    case "auth/wrong-password":
-    case "auth/user-not-found":
-      return "Invalid email or password.";
+    case "auth/email-already-in-use":
+      return "An account with this email already exists.";
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+    case "auth/weak-password":
+      return "Password is too weak. Use at least 6 characters.";
     case "auth/too-many-requests":
       return "Too many attempts. Please try again later.";
     case "auth/popup-closed-by-user":
-      return "Google sign-in was cancelled.";
+      return "Google sign-up was cancelled.";
     case "auth/operation-not-supported-in-this-environment":
-      return "Google sign-in isn't supported in this browser. Please open this page in Chrome or Safari.";
+      return "Google sign-up isn't supported in this browser. Please open this page in Chrome or Safari.";
     case "auth/unauthorized-domain":
       return "This domain isn't authorized for Google sign-in yet.";
     default:

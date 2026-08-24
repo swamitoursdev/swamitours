@@ -1,7 +1,7 @@
 //app\login\page.tsx
 import type { Metadata } from "next";
 import PageShell from "@/components/layout/PageShell";
-import LoginForm from "@/components/auth/LoginForm";
+import AuthCard from "@/components/auth/AuthCard";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <PageShell eyebrow="Account" title="Login to Swami Tours">
-      <LoginForm />
+      <AuthCard />
     </PageShell>
   );
 }

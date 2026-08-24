@@ -160,32 +160,6 @@ const pageLinks: PageLink[] = [
     ),
   },
   {
-    label: "Earnings",
-    href: "/earnings",
-    authOnly: true,
-    icon: (
-      <svg {...iconProps}>
-        <rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" strokeWidth="1.6" />
-        <circle cx="12" cy="12" r="2.4" stroke="currentColor" strokeWidth="1.6" />
-      </svg>
-    ),
-  },
-  {
-    label: "Travel Points",
-    href: "/travel-points",
-    authOnly: true,
-    icon: (
-      <svg {...iconProps}>
-        <path
-          d="m12 3.5 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8L12 3.5Z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
     label: "Careers",
     href: "/careers",
     icon: (
@@ -227,9 +201,11 @@ export default function Header() {
   const isHome = pathname === "/";
   const { user, loading: authLoading } = useAuth();
 
-  // Hide auth-gated tabs (My Profile, My Trips, Earnings, Travel Points) until logged in.
-  // While auth state is still resolving, hide them too, to avoid a flash of gated content.
-  const visiblePageLinks = pageLinks.filter((link) => !link.authOnly || (!!user && !authLoading));
+  // Auth-gated tabs (My Profile, My Trips) render separately, right under the
+  // logged-in user's name in the drawer, instead of in the general page list.
+  const isAuthed = !!user && !authLoading;
+  const regularPageLinks = pageLinks.filter((link) => !link.authOnly);
+  const authPageLinks = pageLinks.filter((link) => link.authOnly);
 
   async function handleLogout() {
     await signOut(auth);
@@ -392,34 +368,60 @@ export default function Header() {
           </button>
         </div>
 
-        {user ? (
-          <div className="flex items-center justify-between gap-3 border-b border-ink/10 bg-sand/40 px-5 py-3">
-            <div className="flex min-w-0 items-center gap-2.5">
-              {user.photoURL ? (
-                <Image
-                  src={user.photoURL}
-                  alt=""
-                  width={32}
-                  height={32}
-                  className="h-8 w-8 shrink-0 rounded-full object-cover"
-                />
-              ) : (
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-moss text-xs font-semibold text-white">
-                  {(user.displayName ?? user.email ?? "?").charAt(0).toUpperCase()}
+        {isAuthed ? (
+          <>
+            <div className="flex items-center justify-between gap-3 border-b border-ink/10 bg-sand/40 px-5 py-3">
+              <div className="flex min-w-0 items-center gap-2.5">
+                {user!.photoURL ? (
+                  <Image
+                    src={user!.photoURL}
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="h-8 w-8 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-moss text-xs font-semibold text-white">
+                    {(user!.displayName ?? user!.email ?? "?").charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <span className="truncate text-sm font-medium text-ink">
+                  {user!.displayName ?? user!.email}
                 </span>
-              )}
-              <span className="truncate text-sm font-medium text-ink">
-                {user.displayName ?? user.email}
-              </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="shrink-0 text-xs font-medium text-saffron-dark hover:underline"
+              >
+                Logout
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="shrink-0 text-xs font-medium text-saffron-dark hover:underline"
-            >
-              Logout
-            </button>
-          </div>
+
+            {/* Auth-only quick links — sit right under the account row with a
+                deeper shade so they read as part of the account block, not
+                the general page list below. */}
+            <div className="border-b border-ink/10 bg-moss/10">
+              {authPageLinks.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-5 py-2.5 text-sm transition-colors ${
+                      isActive
+                        ? "bg-moss/20 text-saffron-dark font-medium"
+                        : "text-ink/80 hover:bg-moss/20 hover:text-saffron-dark"
+                    }`}
+                  >
+                    <span className="text-ink/60">{item.icon}</span>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </>
         ) : (
           <Link
             href="/login"
@@ -431,7 +433,7 @@ export default function Header() {
         )}
 
         <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-          {visiblePageLinks.map((item) => {
+          {regularPageLinks.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
