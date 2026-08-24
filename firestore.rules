@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users can read/write only their own profile document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Users can read their own trips and create new bookings under their own UID
+    match /trips/{tripId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if false;
+    }
+
+    // Public catalog: Anyone can view tour packages, but client writes are disabled
+    match /tours/{tourId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Fallback: lock down any unmapped collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

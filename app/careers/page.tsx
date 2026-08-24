@@ -1,3 +1,4 @@
+//app\careers\page.tsx
 import type { Metadata } from "next";
 import PageShell from "@/components/layout/PageShell";
 import { primaryButton } from "@/components/ui/FormField";

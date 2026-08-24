@@ -1,3 +1,4 @@
+//app\book-a-ride\page.tsx
 import type { Metadata } from "next";
 import PageShell from "@/components/layout/PageShell";
 import BookingWidget from "@/components/home/BookingWidget";

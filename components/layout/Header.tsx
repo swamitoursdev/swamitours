@@ -3,7 +3,10 @@
 import { useEffect, useState, type ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useAuth } from "@/hooks/useAuth";
 
 const anchorIconProps = {
   width: 20,
@@ -89,6 +92,7 @@ type PageLink = {
   label: string;
   href: string;
   icon: ReactElement;
+  authOnly?: boolean; // only shown to logged-in users
 };
 
 const iconProps = {
@@ -136,6 +140,7 @@ const pageLinks: PageLink[] = [
   {
     label: "My Profile",
     href: "/my-profile",
+    authOnly: true,
     icon: (
       <svg {...iconProps}>
         <circle cx="12" cy="8.5" r="3.2" stroke="currentColor" strokeWidth="1.6" />
@@ -146,6 +151,7 @@ const pageLinks: PageLink[] = [
   {
     label: "My Trips",
     href: "/my-trips",
+    authOnly: true,
     icon: (
       <svg {...iconProps}>
         <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.6" />
@@ -156,6 +162,7 @@ const pageLinks: PageLink[] = [
   {
     label: "Earnings",
     href: "/earnings",
+    authOnly: true,
     icon: (
       <svg {...iconProps}>
         <rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" strokeWidth="1.6" />
@@ -166,6 +173,7 @@ const pageLinks: PageLink[] = [
   {
     label: "Travel Points",
     href: "/travel-points",
+    authOnly: true,
     icon: (
       <svg {...iconProps}>
         <path
@@ -215,7 +223,19 @@ export default function Header() {
   const [logoModalOpen, setLogoModalOpen] = useState(false); // logo preview modal
   const [activeSection, setActiveSection] = useState("home"); // scroll-spy for bottom nav
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/";
+  const { user, loading: authLoading } = useAuth();
+
+  // Hide auth-gated tabs (My Profile, My Trips, Earnings, Travel Points) until logged in.
+  // While auth state is still resolving, hide them too, to avoid a flash of gated content.
+  const visiblePageLinks = pageLinks.filter((link) => !link.authOnly || (!!user && !authLoading));
+
+  async function handleLogout() {
+    await signOut(auth);
+    setSidebarOpen(false);
+    router.push("/");
+  }
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -372,16 +392,46 @@ export default function Header() {
           </button>
         </div>
 
-        <Link
-          href="/login"
-          onClick={() => setSidebarOpen(false)}
-          className="flex items-center justify-center bg-moss py-3.5 text-sm font-medium text-white hover:bg-moss-dark transition-colors"
-        >
-          Login
-        </Link>
+        {user ? (
+          <div className="flex items-center justify-between gap-3 border-b border-ink/10 bg-sand/40 px-5 py-3">
+            <div className="flex min-w-0 items-center gap-2.5">
+              {user.photoURL ? (
+                <Image
+                  src={user.photoURL}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-moss text-xs font-semibold text-white">
+                  {(user.displayName ?? user.email ?? "?").charAt(0).toUpperCase()}
+                </span>
+              )}
+              <span className="truncate text-sm font-medium text-ink">
+                {user.displayName ?? user.email}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="shrink-0 text-xs font-medium text-saffron-dark hover:underline"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center justify-center bg-moss py-3.5 text-sm font-medium text-white hover:bg-moss-dark transition-colors"
+          >
+            Login
+          </Link>
+        )}
 
         <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-          {pageLinks.map((item) => {
+          {visiblePageLinks.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link

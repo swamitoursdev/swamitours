@@ -1,3 +1,4 @@
+//app\blogs\page.tsx
 import type { Metadata } from "next";
 import PageShell from "@/components/layout/PageShell";
 
