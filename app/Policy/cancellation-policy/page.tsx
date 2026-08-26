@@ -25,7 +25,7 @@ export default function CancellationPolicyPage() {
             Cancellation Policy
           </h1>
           <p className="mt-3 text-sm text-white/60">
-            Last updated: August 22, 2026
+            Last updated: August 26, 2026
           </p>
         </div>
       </div>
@@ -35,7 +35,14 @@ export default function CancellationPolicyPage() {
           We understand that travel plans can change. This policy explains
           how cancellations and rescheduling are handled for local cab
           bookings, outstation trips, and pilgrimage tour packages booked
-          with Swami Tours. For information about refunds, please see our{" "}
+          with Swami Tours. It should be read together with our{" "}
+          <Link href="/Policy/terms-and-conditions" className="text-saffron hover:underline">
+            Terms &amp; Conditions
+          </Link>{" "}
+          — where this policy is silent on a point, or in case of any
+          conflict, the Terms &amp; Conditions and your specific booking
+          confirmation will govern. For information about refunds, please
+          see our{" "}
           <Link
             href="/Policy/return-and-refund-policy"
             className="text-saffron hover:underline"
@@ -52,14 +59,19 @@ export default function CancellationPolicyPage() {
           <ul className="mt-3 list-disc pl-5 space-y-1">
             <li>
               Cancellations made more than 2 hours before the scheduled
-              pickup time are free of charge.
+              reporting time are free of charge.
             </li>
             <li>
-              Cancellations made within 2 hours of pickup, or after a driver
-              has already been dispatched, may attract a nominal
-              cancellation fee to cover the driver's time and fuel.
+              Cancellations made within 2 hours of the reporting time, or
+              after a driver has already been dispatched, may attract a
+              nominal cancellation fee to cover the driver's time and fuel.
             </li>
             <li>No-shows at the pickup location will be charged in full.</li>
+            <li>
+              If a vehicle has been specifically blocked or reserved for
+              your booking, the advance amount paid may be non-refundable
+              regardless of the timing of cancellation.
+            </li>
           </ul>
         </section>
 
@@ -80,14 +92,28 @@ export default function CancellationPolicyPage() {
             </li>
             <li>
               Cancellations made less than 24 hours before the trip start
-              date, or no-shows, will be treated as a full cancellation
-              charge.
+              date, or no-shows, will forfeit the full advance amount paid.
+              Where the total package cost has already been substantially
+              committed for the booking (e.g. a fully-arranged multi-day
+              pilgrimage tour), the full package cost may become payable.
             </li>
             <li>
               For multi-day pilgrimage packages, cancelling any unused
               portion of the trip mid-journey does not reduce the applicable
               cancellation charge, as vehicle and driver costs are committed
               for the full duration.
+            </li>
+            <li>
+              As with local bookings, advance amounts paid to specifically
+              block or reserve a vehicle may be non-refundable, regardless
+              of the cancellation window above. See our{" "}
+              <Link
+                href="/Policy/return-and-refund-policy"
+                className="text-saffron hover:underline"
+              >
+                Return &amp; Refund Policy
+              </Link>{" "}
+              for how refunds are calculated.
             </li>
           </ul>
         </section>
@@ -111,10 +137,13 @@ export default function CancellationPolicyPage() {
           </h2>
           <p className="mt-3">
             We're happy to reschedule your booking to a different date or
-            time, subject to vehicle availability, at no extra cost if
-            requested at least 24 hours in advance. Rescheduling requests
-            made closer to the travel date will be accommodated on a
-            best-effort basis.
+            time, subject to vehicle and driver availability. Rescheduling
+            requested at least 24 hours in advance is generally accommodated
+            without a separate rescheduling fee, though any difference in
+            fare arising from the new date, time, route, or package (for
+            example, seasonal pricing or night charges) will still apply.
+            Requests made closer to the travel date will be accommodated on
+            a best-effort basis and may attract additional charges.
           </p>
         </section>
 
@@ -126,8 +155,10 @@ export default function CancellationPolicyPage() {
             In case a trip cannot proceed due to circumstances beyond
             anyone's control — such as severe weather, roadblocks,
             landslides, government restrictions, or natural events — we will
-            work with you to reschedule the trip rather than treat it as a
-            standard cancellation.
+            make reasonable efforts to reschedule the trip with you rather
+            than treat it as a standard cancellation, wherever practicable.
+            This is subject to vehicle and driver availability at the
+            revised date and time.
           </p>
         </section>
 

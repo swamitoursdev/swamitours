@@ -25,7 +25,7 @@ export default function ReturnAndRefundPolicyPage() {
             Return &amp; Refund Policy
           </h1>
           <p className="mt-3 text-sm text-white/60">
-            Last updated: August 22, 2026
+            Last updated: August 26, 2026
           </p>
         </div>
       </div>
@@ -34,15 +34,20 @@ export default function ReturnAndRefundPolicyPage() {
         <p>
           As a cab and tour service provider, Swami Tours does not sell
           physical goods, so this policy covers refunds of amounts already
-          paid to us — not product returns. For details on when a booking
-          can be cancelled, please see our{" "}
+          paid to us — not product returns. It should be read together with
+          our{" "}
+          <Link href="/Policy/terms-and-conditions" className="text-saffron hover:underline">
+            Terms &amp; Conditions
+          </Link>{" "}
+          and{" "}
           <Link
             href="/Policy/cancellation-policy"
             className="text-saffron hover:underline"
           >
             Cancellation Policy
           </Link>
-          .
+          , which govern when a booking can be cancelled and when an advance
+          payment may be non-refundable regardless of timing.
         </p>
 
         <section>
@@ -53,7 +58,10 @@ export default function ReturnAndRefundPolicyPage() {
             <li>
               Cancellations made within the free-cancellation window set out
               in our Cancellation Policy are eligible for a full refund of
-              any advance paid.
+              any advance paid — <strong>unless</strong> the vehicle was
+              specifically blocked or reserved for your booking, in which
+              case the advance may be non-refundable even within this
+              window, as described in our Cancellation Policy.
             </li>
             <li>
               If we are unable to fulfil a confirmed booking due to vehicle
@@ -79,6 +87,11 @@ export default function ReturnAndRefundPolicyPage() {
               Cancellations made outside the free-cancellation window, or
               no-shows, are not eligible for a refund, as outlined in our
               Cancellation Policy.
+            </li>
+            <li>
+              Advance amounts paid to specifically block or reserve a
+              vehicle are not eligible for a refund, regardless of the
+              cancellation window, as described in our Cancellation Policy.
             </li>
             <li>
               Amounts already spent on tolls, parking, permits, or other
@@ -114,8 +127,11 @@ export default function ReturnAndRefundPolicyPage() {
             Eligible refunds are processed to the original mode of payment
             within 5–7 business days of approval. Refunds for cash payments
             are settled via UPI or bank transfer to an account you provide.
-            Payment gateway or bank transaction charges, if any, may be
-            deducted from the refunded amount.
+            Refunds are calculated after deduction of any applicable
+            cancellation charges, the cost of services already completed,
+            payment gateway or bank transaction charges, and other
+            legitimately incurred expenses (such as tolls or permits already
+            paid on your behalf).
           </p>
         </section>
 
