@@ -97,6 +97,8 @@ const socialLinks = [
 
 export default function Footer() {
   const [isLogoOpen, setIsLogoOpen] = useState(false);
+  const [isQrOpen, setIsQrOpen] = useState(false);
+  const [qrSrc, setQrSrc] = useState("/SwamitoursQR.svg");
 
   const handleSocialClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -113,7 +115,7 @@ export default function Footer() {
 
   return (
     <footer id="contact" className="bg-ink text-white/70">
-      <div className="mx-auto grid w-full max-w-[1800px] grid-cols-2 gap-x-8 gap-y-10 px-5 py-14 sm:grid-cols-3 sm:px-8 sm:py-16 lg:grid-cols-6 lg:px-14 xl:px-20">
+      <div className="mx-auto grid w-full max-w-[1800px] grid-cols-2 gap-x-8 gap-y-10 px-5 py-14 sm:grid-cols-3 sm:px-8 sm:py-16 lg:grid-cols-7 lg:px-14 xl:px-20">
         {/* Brand */}
         <div className="col-span-2 sm:col-span-3 lg:col-span-2 lg:pr-8 max-sm:text-center">
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-2.5">
@@ -256,6 +258,30 @@ export default function Footer() {
             </li>
           </ul>
         </div>
+
+        {/* QR code — on desktop this sits in its own column at the same
+           level as the rest, centered within that column; on mobile it
+           spans the full row and centers to the screen, independent of the
+           left-aligned Hours text next to it. */}
+        <div className="col-span-2 flex flex-col items-center text-center sm:col-span-3 lg:col-span-1">
+          <button
+            type="button"
+            onClick={() => setIsQrOpen(true)}
+            aria-label="View larger QR code"
+            className="rounded-lg transition-transform duration-150 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-saffron"
+          >
+            <Image
+              src={qrSrc}
+              alt="Scan to chat with Swami Tours on WhatsApp"
+              width={144}
+              height={144}
+              unoptimized
+              onError={() => setQrSrc("/SwamiToursQR.png")}
+              className="h-32 w-32 rounded-lg bg-white p-2"
+            />
+          </button>
+          <p className="mt-2 text-xs text-white/50">Scan to chat with us</p>
+        </div>
       </div>
 
       {/* Copyright — extra bottom padding on mobile so this clears the fixed
@@ -314,6 +340,45 @@ export default function Footer() {
             />
             <span className="mt-4 font-display text-lg font-semibold text-white">
               Swami Tours
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* QR modal */}
+      {isQrOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Swami Tours WhatsApp QR code"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-6"
+          onClick={() => setIsQrOpen(false)}
+        >
+          <div
+            className="relative flex max-w-xs flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsQrOpen(false)}
+              aria-label="Close"
+              className="absolute -top-10 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+              </svg>
+            </button>
+            <Image
+              src={qrSrc}
+              alt="Scan to chat with Swami Tours on WhatsApp"
+              width={280}
+              height={280}
+              unoptimized
+              onError={() => setQrSrc("/SwamiToursQR.png")}
+              className="h-64 w-64 rounded-lg bg-white p-3 shadow-2xl"
+            />
+            <span className="mt-4 font-display text-lg font-semibold text-white">
+              Scan to chat with us
             </span>
           </div>
         </div>
