@@ -10,6 +10,7 @@ import {
   getRedirectResult,
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
+import { syncUserDoc } from "@/lib/syncUserDoc";
 import { FormField, primaryButton } from "@/components/ui/FormField";
 
 function isMobileOrInApp() {
@@ -35,8 +36,9 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   // (needed for mobile / in-app browsers where signInWithPopup fails).
   useEffect(() => {
     getRedirectResult(auth)
-      .then((result) => {
+      .then(async (result) => {
         if (result) {
+          await syncUserDoc(result.user);
           router.push("/");
         }
       })
@@ -49,7 +51,8 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
     setError(null);
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      await syncUserDoc(cred.user);
       router.push("/");
     } catch (err) {
       setError(getFriendlyError(err));
@@ -68,7 +71,8 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
         // is picked up by getRedirectResult() above after the page reloads.
         await signInWithRedirect(auth, googleProvider);
       } else {
-        await signInWithPopup(auth, googleProvider);
+        const result = await signInWithPopup(auth, googleProvider);
+        await syncUserDoc(result.user);
         router.push("/");
       }
     } catch (err) {
