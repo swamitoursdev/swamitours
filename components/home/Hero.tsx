@@ -19,7 +19,7 @@ export default function Hero() {
         preload="auto"
         className="absolute inset-0 h-full w-full object-cover"
       >
-        <source src="/assets/swamitours.mp4" type="video/mp4" />
+        <source src="/assets/swamitour.mp4" type="video/mp4" />
       </video>
 
       {/* Custom illustration: ghats + hills + a dashed pilgrim route, drawn

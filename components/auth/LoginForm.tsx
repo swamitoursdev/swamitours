@@ -1,4 +1,3 @@
-//components\auth\LoginForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -32,27 +31,41 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Catch the result when the browser comes back from a redirect-based sign-in
-  // (needed for mobile / in-app browsers where signInWithPopup fails).
   useEffect(() => {
+    let isMounted = true;
+
     getRedirectResult(auth)
       .then(async (result) => {
-        if (result) {
-          await syncUserDoc(result.user);
+        if (result && isMounted) {
+          try {
+            await syncUserDoc(result.user);
+          } catch (syncErr) {
+            console.error("Non-fatal sync error:", syncErr);
+          }
           router.push("/");
         }
       })
-      .catch((err) => setError(getFriendlyError(err)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      .catch((err) => {
+        if (isMounted) setError(getFriendlyError(err));
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
 
   async function handleEmailLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      await syncUserDoc(cred.user);
+      try {
+        await syncUserDoc(cred.user);
+      } catch (syncErr) {
+        console.error("Non-fatal sync error:", syncErr);
+      }
       router.push("/");
     } catch (err) {
       setError(getFriendlyError(err));
@@ -64,19 +77,22 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   async function handleGoogleLogin() {
     setError(null);
     setLoading(true);
+
     try {
       if (isMobileOrInApp()) {
-        // Popups are unreliable/unsupported on mobile browsers and in-app
-        // webviews (Instagram, WhatsApp, etc). Redirect instead — the result
-        // is picked up by getRedirectResult() above after the page reloads.
         await signInWithRedirect(auth, googleProvider);
       } else {
         const result = await signInWithPopup(auth, googleProvider);
-        await syncUserDoc(result.user);
+        try {
+          await syncUserDoc(result.user);
+        } catch (syncErr) {
+          console.error("Non-fatal sync error:", syncErr);
+        }
         router.push("/");
       }
     } catch (err) {
       setError(getFriendlyError(err));
+    } finally {
       setLoading(false);
     }
   }
@@ -107,7 +123,11 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <button type="submit" disabled={loading} className={`${primaryButton} w-full disabled:opacity-60`}>
+      <button
+        type="submit"
+        disabled={loading}
+        className={`${primaryButton} w-full disabled:opacity-60`}
+      >
         {loading ? "Logging in..." : "Login"}
       </button>
 
@@ -138,7 +158,9 @@ export default function LoginForm({ onSwitchToSignup }: LoginFormProps) {
             Create an account
           </button>
         ) : (
-          <a href="/signup" className="text-saffron-dark">Create an account</a>
+          <a href="/signup" className="text-saffron-dark">
+            Create an account
+          </a>
         )}
       </p>
     </form>
