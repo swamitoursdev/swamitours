@@ -19,7 +19,7 @@ export default function Hero() {
         preload="auto"
         className="absolute inset-0 h-full w-full object-cover"
       >
-        <source src="/assets/tesla.mp4" type="video/mp4" />
+        <source src="/assets/swamitours.mp4" type="video/mp4" />
       </video>
 
       {/* Custom illustration: ghats + hills + a dashed pilgrim route, drawn
@@ -44,6 +44,9 @@ export default function Hero() {
         />
         <circle cx="1180" cy="420" r="7" fill="var(--color-saffron)" />
       </svg>
+
+      {/* Dark tint over the video so the white text/stats stay readable. */}
+      <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8 pt-16 pb-24 flex flex-col items-center text-center">
         <div className="order-1 sm:order-2 w-full flex justify-center sm:mt-10">

@@ -5,10 +5,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { routeSlug } from "@/lib/cab-routes";
 
-// `to` must match a destination name in lib/cab-routes.ts exactly — that's
-// what generates the route pages (paired with "Mumbai"). Packages without a
-// single from/to city (multi-stop tours) have no `to`, so they still link
-// to /book-a-ride.
 const packages = [
   { title: "Mumbai to Pune", to: "Pune", note: "Vice versa fares also available", price: "₹2,999", unit: "", tone: "var(--color-saffron)" },
   { title: "Mumbai to Nashik", to: "Nashik", note: "Vice versa fares also available", price: "₹2,999", unit: "", tone: "var(--color-moss)" },
@@ -22,9 +18,6 @@ const packages = [
   { title: "Ashtavinayak Darshan", note: "Full-circuit temple tour package", price: "₹8,499", unit: "/day", tone: "var(--color-saffron)" },
 ];
 
-// Images live at /assets/Taxi Packages/<exact package title>.webp — dropped in
-// over time, so a missing file is expected and falls back to the tone
-// gradient banner rather than breaking the card.
 function packageImageSrc(title: string): string {
   return encodeURI(`/assets/Taxi Packages/${title}.webp`);
 }
@@ -100,13 +93,6 @@ export default function TaxiPackages() {
                 style={{ transitionDelay: visible[i] ? `${(i % 4) * 90}ms` : "0ms" }}
               >
                 {showImage ? (
-                  // aspect-3/2 matches the source PNGs' native 1536x1024 canvas so
-                  // object-contain has no letterboxing to fill — the artwork already
-                  // fills ~99%/96% of that canvas, so this is effectively full-bleed.
-                  // overflow is intentionally visible here (no card box, no clipping)
-                  // so the image can grow past its bounds on hover without being cut off.
-                  // aspect-3/2 matches the source PNGs' native 1536x1024 canvas so
-                  // object-contain has no letterboxing to fill.
                   <div className="relative aspect-3/2 w-full">
                     <div
                       className="absolute left-1/2 top-1/2 h-2/3 w-2/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl opacity-40 transition-opacity duration-500 group-hover:opacity-60"

@@ -30,36 +30,7 @@ const navLinks = [
       </svg>
     ),
   },
-  {
-    label: "Services",
-    href: "/#services",
-    id: "services",
-    icon: (
-      <svg {...anchorIconProps}>
-        <path
-          d="M14.7 6.3a3.5 3.5 0 0 1-4.6 4.6l-5.4 5.4a1.5 1.5 0 0 0 2.1 2.1l5.4-5.4a3.5 3.5 0 0 1 4.6-4.6l-2.1 2.1-1.5-.4-.4-1.5 2.1-2.1Z"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    label: "Fleet",
-    href: "/#fleet",
-    id: "fleet",
-    icon: (
-      <svg {...anchorIconProps}>
-        <path d="M4 16.5v-3l1.8-4.6A2 2 0 0 1 7.7 7.5h8.6a2 2 0 0 1 1.9 1.4l1.8 4.6v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="3" y="16.5" width="18" height="3.5" rx="1" stroke="currentColor" strokeWidth="1.6" />
-        <circle cx="7.5" cy="16.5" r="1.4" fill="currentColor" />
-        <circle cx="16.5" cy="16.5" r="1.4" fill="currentColor" />
-      </svg>
-    ),
-  },
-  {
+   {
     label: "Destinations",
     href: "/#destinations",
     id: "destinations",
@@ -76,7 +47,36 @@ const navLinks = [
     ),
   },
   {
-    label: "Contact",
+    label: "Fleet",
+    href: "/#fleet",
+    id: "fleet",
+    icon: (
+      <svg {...anchorIconProps}>
+        <path d="M4 16.5v-3l1.8-4.6A2 2 0 0 1 7.7 7.5h8.6a2 2 0 0 1 1.9 1.4l1.8 4.6v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="3" y="16.5" width="18" height="3.5" rx="1" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="7.5" cy="16.5" r="1.4" fill="currentColor" />
+        <circle cx="16.5" cy="16.5" r="1.4" fill="currentColor" />
+      </svg>
+    ),
+  },
+    {
+    label: "Services",
+    href: "/#services",
+    id: "services",
+    icon: (
+      <svg {...anchorIconProps}>
+        <path
+          d="M14.7 6.3a3.5 3.5 0 0 1-4.6 4.6l-5.4 5.4a1.5 1.5 0 0 0 2.1 2.1l5.4-5.4a3.5 3.5 0 0 1 4.6-4.6l-2.1 2.1-1.5-.4-.4-1.5 2.1-2.1Z"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: "Policy",
     href: "/#contact",
     id: "contact",
     icon: (

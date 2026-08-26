@@ -465,7 +465,10 @@ export default function BookingWidget({
   const isFormValid = Object.keys(validate()).length === 0;
 
   return (
-    <div className="w-full rounded-2xl border border-white/15 bg-white/10 shadow-xl shadow-black/20 backdrop-blur-md p-2 sm:p-3">
+    <div
+      id="booking"
+      className="w-full scroll-mt-24 rounded-2xl border border-white/15 bg-white/10 shadow-xl shadow-black/20 backdrop-blur-md p-2 sm:p-3"
+    >
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 rounded-xl border border-white/15 bg-black/20 p-1 sm:p-1.5">
         {tripTypes.map((type) => (
           <button

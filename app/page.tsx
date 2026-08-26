@@ -24,8 +24,8 @@ export default function Home() {
         <Hero />        
         <TaxiPackages />
         <Destinations />
-        <Services />
         <Fleet />
+        <Services />        
         <HowItWorks />
         <TopPlaces />
         <Testimonials />

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { slugify } from "@/lib/cab-routes";
 
 type Service = {
   title: string;
@@ -63,10 +64,46 @@ export default function Services() {
   const [fromRight, setFromRight] = useState(true);
   const current = services[active];
 
+  // Keeps a live copy of `active` for the hash listener below, which is set
+  // up once on mount — without this it would only ever see the initial value.
+  const activeRef = useRef(active);
+  useEffect(() => {
+    activeRef.current = active;
+  }, [active]);
+
   useEffect(() => {
     const id = requestAnimationFrame(() => setEntered(true));
     return () => cancelAnimationFrame(id);
   }, [active]);
+
+  // Lets other parts of the site (e.g. the "Available Services" links in the
+  // footer strip) deep-link straight into a tab via "#service-<slug>",
+  // rather than just landing on the section with whatever tab was active.
+  useEffect(() => {
+    function syncFromHash() {
+      const hash = window.location.hash.slice(1);
+      const prefix = "service-";
+      if (!hash.startsWith(prefix)) return;
+
+      const slug = hash.slice(prefix.length);
+      const index = services.findIndex((s) => slugify(s.title) === slug);
+      if (index === -1) return;
+
+      if (index !== activeRef.current) {
+        setFromRight(index > activeRef.current);
+        setEntered(false);
+        setActive(index);
+      }
+
+      document
+        .getElementById("services")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, []);
 
   function selectTab(index: number) {
     if (index === active) return;
@@ -91,7 +128,7 @@ export default function Services() {
         <div
           role="tablist"
           aria-label="Our services"
-          className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-3 border-b border-ink/10 pb-px sm:mt-10 sm:gap-x-10"
+          className="mt-8 grid grid-cols-2 gap-x-4 gap-y-1 border-b border-ink/10 sm:mt-10 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-3 sm:pb-px"
         >
           {services.map((service, index) => {
             const isActive = index === active;
@@ -102,16 +139,16 @@ export default function Services() {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => selectTab(index)}
-                className={`whitespace-nowrap border-b-2 pb-4 text-base font-medium transition-colors active:scale-95 sm:text-lg ${
+                className={`w-full border-b-2 py-3 text-left text-sm font-medium leading-snug transition-colors active:scale-95 sm:w-auto sm:whitespace-nowrap sm:py-0 sm:pb-4 sm:text-left sm:text-lg ${
                   isActive
                     ? "border-saffron text-ink"
                     : "border-transparent text-ink/50 hover:text-ink/80"
                 }`}
               >
-                <span className="inline-flex items-center gap-2">
+                <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
                   {service.title}
                   {service.highlight && (
-                    <span className="rounded-full bg-saffron/15 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-saffron-dark">
+                    <span className="rounded-full bg-saffron/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-saffron-dark sm:text-xs">
                       Popular
                     </span>
                   )}
@@ -132,14 +169,34 @@ export default function Services() {
                 : "-translate-x-3 opacity-0"
           }`}
         >
-          <div className="order-last flex flex-col justify-center gap-5 bg-ink p-8 sm:order-0 sm:p-14 lg:p-16">
-            <h3 className="font-display text-2xl font-semibold text-white sm:text-3xl">
+          <div className="relative order-last flex flex-col justify-center gap-5 overflow-hidden bg-ink p-8 sm:order-0 sm:p-14 lg:p-16">
+            <video
+              className="absolute inset-0 h-full w-full object-cover"
+              src="/assets/tesla.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+            />
+            <div className="absolute inset-0 bg-ink/70" />
+
+            <h3 className="relative font-display text-2xl font-semibold text-white sm:text-3xl">
               {current.title}
             </h3>
-            <p className="max-w-md text-base leading-relaxed text-white/70">{current.desc}</p>
+            <p className="relative max-w-md text-base leading-relaxed text-white/70">{current.desc}</p>
             <a
-              href="#booking"
-              className="mt-1 inline-flex w-full items-center justify-center rounded-lg bg-saffron px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-saffron-dark active:scale-95 sm:mt-2 sm:w-fit sm:justify-start"
+              href="/#booking"
+              onClick={(e) => {
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+                  return;
+                }
+                const target = document.getElementById("booking");
+                if (!target) return;
+                e.preventDefault();
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="relative mt-1 inline-flex w-full items-center justify-center rounded-lg bg-saffron px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-saffron-dark active:scale-95 sm:mt-2 sm:w-fit sm:justify-start"
             >
               Explore More
             </a>
