@@ -10,6 +10,8 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 
 const tripTypes = ["Airport", "Local", "One Way", "Round Trip"] as const;
+export type TripType = (typeof tripTypes)[number];
+const localPackages = ["4hr/40km", "8hr/80km", "10hr/100km", "12hr/120km", "Mumbai Darshan"] as const;
 const WHATSAPP_NUMBER = "919324378802"; // +91 93243 78802
 
 // Small 32-bit string hash (FNV-1a-ish) used to build a stable, deterministic
@@ -30,12 +32,17 @@ type BookingWidgetProps = {
   defaultPickup?: string;
   defaultDrop?: string;
   defaultTripType?: (typeof tripTypes)[number];
+  // Lets a parent page react to the currently selected trip type — e.g. to
+  // show/hide content (like a fare table) that only applies to certain
+  // trip types. Called on mount and on every change.
+  onTripTypeChange?: (tripType: TripType) => void;
 };
 
 export default function BookingWidget({
   defaultPickup = "",
   defaultDrop = "",
   defaultTripType = "Airport",
+  onTripTypeChange,
 }: BookingWidgetProps) {
   const { user } = useAuth();
 
@@ -58,6 +65,13 @@ export default function BookingWidget({
   const [savingTrip, setSavingTrip] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Remembers the last real drop value (typed destination, airport, or
+  // prefilled location) while NOT on "Local" — so that if the user hops to
+  // "Local" (which blanks the field for the package dropdown) and then
+  // back to another trip type, we can restore what was there instead of
+  // leaving it empty.
+  const lastNonLocalDropRef = useRef(defaultDrop);
+
   // defaultPickup/defaultDrop only seed state on mount by default — this
   // keeps them in sync when the parent changes them later (e.g. clicking a
   // "places on this route" chip should update the drop field live).
@@ -68,6 +82,43 @@ export default function BookingWidget({
   useEffect(() => {
     setDrop(defaultDrop);
   }, [defaultDrop]);
+
+  // "Local" trips pick the drop field from a fixed list of packages instead
+  // of typing a free-text destination. selectTripType (used by the trip
+  // type tabs below) handles the transition explicitly and synchronously,
+  // instead of via a useEffect keyed on tripType — that split into two
+  // separate effects the first time round, which could race with each
+  // other and clobber the field. Doing it directly in the handler means
+  // there's exactly one place that decides the new drop value.
+  function selectTripType(nextType: TripType) {
+    setTripType(nextType);
+    if (nextType === "Local") {
+      // Entering Local: keep a package if one's already selected, otherwise
+      // blank the field so the dropdown starts on "Select package".
+      setDrop((prev) => (localPackages.includes(prev as (typeof localPackages)[number]) ? prev : ""));
+    } else if (tripType === "Local") {
+      // Leaving Local: restore whatever real location was there before.
+      setDrop(lastNonLocalDropRef.current);
+    }
+  }
+
+  // Keep lastNonLocalDropRef up to date with whatever the user actually has
+  // in the drop field whenever it's a "real" location (i.e. any trip type
+  // other than Local, where the field is a free-text/airport input rather
+  // than a package dropdown).
+  useEffect(() => {
+    if (tripType !== "Local") {
+      lastNonLocalDropRef.current = drop;
+    }
+  }, [drop, tripType]);
+
+  // Report the selected trip type up to the parent (if it's listening) —
+  // fires on mount too, so the parent's initial state always matches
+  // whatever defaultTripType this widget actually started on.
+  useEffect(() => {
+    onTripTypeChange?.(tripType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripType]);
 
   // If the user is logged in, prefill name/phone from their saved profile.
   // Uses functional updates so it never clobbers something they've already
@@ -380,13 +431,16 @@ export default function BookingWidget({
       "",
       "*TERMS & RENTAL RULES*",
       "───────────────────",
+      "⚠️ *Booking Confirmation: 25% advance payment is mandatory to confirm the booking.*",
       "• *Kilometer Limit:* Minimum 300 km charged per calendar day.",
       "• *Day Calculation:* 1 calendar day is calculated from 12:00 AM to 11:00 PM.",
       "• *Night Charges:* Applicable for pickups scheduled before 6:00 AM or travel past designated night hours.",
       "• *Allowances:* Driver allowance and night charges will apply as required.",
       "• *Driver Stay & Food:* Accommodation and meals for the driver to be arranged/borne by the customer during outstation trips.",
       "• *Exclusions:* Toll, parking fees, state/border taxes, permits, and entry fees are extra as per actual receipts.",
-      "_Final fare will be confirmed on WhatsApp based on actual running (km)._"
+      "_Final fare will be confirmed on WhatsApp based on actual running (km)._",
+      "",
+      "I agree to the above mentioned Terms & Conditions."
     );
 
     const message = encodeURIComponent(lines.join("\n"));
@@ -474,7 +528,7 @@ export default function BookingWidget({
           <button
             key={type}
             type="button"
-            onClick={() => setTripType(type)}
+            onClick={() => selectTripType(type)}
             aria-pressed={tripType === type}
             className={`w-full rounded-lg px-4 py-2 text-sm font-medium text-center transition-colors ${
               tripType === type
@@ -601,12 +655,27 @@ export default function BookingWidget({
                   placeholder="Eg: Adampur Airport"
                   className={fieldClasses("drop")}
                 />
+              ) : tripType === "Local" ? (
+                <select
+                  value={drop}
+                  onChange={(event) => setDrop(event.target.value)}
+                  className={fieldClasses("drop")}
+                >
+                  <option value="" className="bg-ink text-white">
+                    Select package
+                  </option>
+                  {localPackages.map((pkg) => (
+                    <option key={pkg} value={pkg} className="bg-ink text-white">
+                      {pkg}
+                    </option>
+                  ))}
+                </select>
               ) : (
                 <input
                   type="text"
                   value={drop}
                   onChange={(event) => setDrop(event.target.value)}
-                  placeholder={tripType === "Local" ? "4hr / 40km" : "Eg: Shirdi"}
+                  placeholder="Eg: Shirdi"
                   maxLength={100}
                   className={fieldClasses("drop")}
                 />
@@ -770,6 +839,12 @@ export default function BookingWidget({
             Terms &amp; Rental Rules
           </span>
           <ul className="mt-1.5 space-y-1 text-[11px] leading-relaxed text-white/50">
+            <li>
+              <span className="font-bold text-saffron">Booking Confirmation:</span>{" "}
+              <span className="font-bold text-saffron">
+                25% advance payment is mandatory to confirm the booking.
+              </span>
+            </li>
             <li>
               <span className="font-medium text-white/70">Kilometer Limit:</span> Minimum 300 km
               charged per calendar day.

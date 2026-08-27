@@ -1,5 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import BookingWidget from "@/components/home/BookingWidget";
+import BookingWidget, { type TripType } from "@/components/home/BookingWidget";
 import RouteDivider from "@/components/ui/RouteDivider";
 import PhotoCollage from "@/components/ui/PhotoCollage";
 import FareTable from "./FareTable";
@@ -9,6 +12,11 @@ import { getRouteContent, routeSlug } from "@/lib/cab-routes";
 
 export default function RouteLandingContent({ from, to }: { from: string; to: string }) {
   const { blog, faqs, circuit, isCircuitHub } = getRouteContent(from, to);
+  // The fare table only applies to Round Trip bookings — One Way, Airport,
+  // and Local all have their own pricing (per-drop / package-based), so we
+  // track the widget's live trip type here to show/hide it accordingly.
+  const [tripType, setTripType] = useState<TripType>("One Way");
+  const showFareTable = tripType === "Round Trip";
 
   return (
     <main className="flex-1">
@@ -25,6 +33,7 @@ export default function RouteLandingContent({ from, to }: { from: string; to: st
               defaultPickup={from}
               defaultDrop={to}
               defaultTripType="One Way"
+              onTripTypeChange={setTripType}
             />
           </div>
 
@@ -71,13 +80,15 @@ export default function RouteLandingContent({ from, to }: { from: string; to: st
       </section>
 
       <div className="mx-auto max-w-5xl px-5 sm:px-8 py-14 space-y-14">
-        <section>
-          <h2 className="font-display text-xl font-semibold text-ink">Taxi Fare</h2>
-          <p className="mt-1 text-sm text-ink/60">
-            Comfortable, well-maintained cabs at transparent prices — pay what&apos;s shown, no surprise charges.
-          </p>
-          <div className="mt-5"><FareTable /></div>
-        </section>
+        {showFareTable && (
+          <section>
+            <h2 className="font-display text-xl font-semibold text-ink">Taxi Fare</h2>
+            <p className="mt-1 text-sm text-ink/60">
+              Comfortable, well-maintained cabs at transparent prices — pay what&apos;s shown, no surprise charges.
+            </p>
+            <div className="mt-5"><FareTable /></div>
+          </section>
+        )}
 
         <RouteDivider />
 

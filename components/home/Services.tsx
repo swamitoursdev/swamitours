@@ -128,7 +128,7 @@ export default function Services() {
         <div
           role="tablist"
           aria-label="Our services"
-          className="mt-8 grid grid-cols-2 gap-x-4 gap-y-1 border-b border-ink/10 sm:mt-10 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-3 sm:pb-px"
+          className="mt-6 grid grid-cols-2 gap-x-4 gap-y-0 border-b border-ink/10 sm:mt-10 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-3 sm:pb-px"
         >
           {services.map((service, index) => {
             const isActive = index === active;
@@ -139,7 +139,7 @@ export default function Services() {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => selectTab(index)}
-                className={`w-full border-b-2 py-3 text-left text-sm font-medium leading-snug transition-colors active:scale-95 sm:w-auto sm:whitespace-nowrap sm:py-0 sm:pb-4 sm:text-left sm:text-lg ${
+                className={`w-full border-b-2 py-1.5 text-left text-sm font-medium leading-snug transition-colors active:scale-95 sm:w-auto sm:whitespace-nowrap sm:py-0 sm:pb-4 sm:text-left sm:text-lg ${
                   isActive
                     ? "border-saffron text-ink"
                     : "border-transparent text-ink/50 hover:text-ink/80"
@@ -161,7 +161,7 @@ export default function Services() {
         {/* Panel */}
         <div
           role="tabpanel"
-          className={`mx-auto mt-6 grid w-full overflow-hidden rounded-xl border border-ink/10 motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out sm:mt-8 sm:h-130 sm:grid-cols-2 sm:rounded-2xl ${
+          className={`mx-auto mt-4 grid w-full overflow-hidden rounded-xl border border-ink/10 motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out sm:mt-8 sm:h-130 sm:grid-cols-2 sm:rounded-2xl ${
             entered
               ? "translate-x-0 opacity-100"
               : fromRight

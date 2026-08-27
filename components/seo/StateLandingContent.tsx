@@ -1,4 +1,7 @@
-import BookingWidget from "@/components/home/BookingWidget";
+"use client";
+
+import { useState } from "react";
+import BookingWidget, { type TripType } from "@/components/home/BookingWidget";
 import RouteDivider from "@/components/ui/RouteDivider";
 import PhotoCollage from "@/components/ui/PhotoCollage";
 import FareTable from "./FareTable";
@@ -8,6 +11,9 @@ import { getStateContent } from "@/lib/cab-routes";
 
 export default function StateLandingContent({ state }: { state: string }) {
   const { blog, faqs } = getStateContent(state);
+  // Same rule as the route pages — fare table applies to Round Trip only.
+  const [tripType, setTripType] = useState<TripType>("One Way");
+  const showFareTable = tripType === "Round Trip";
 
   return (
     <main className="flex-1">
@@ -23,19 +29,22 @@ export default function StateLandingContent({ state }: { state: string }) {
             <BookingWidget
               defaultDrop={state}
               defaultTripType="One Way"
+              onTripTypeChange={setTripType}
             />
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-5xl px-5 sm:px-8 py-14 space-y-14">
-        <section>
-          <h2 className="font-display text-xl font-semibold text-ink">Taxi Fare</h2>
-          <p className="mt-1 text-sm text-ink/60">
-            Comfortable, well-maintained cabs at transparent prices — pay what&apos;s shown, no surprise charges.
-          </p>
-          <div className="mt-5"><FareTable /></div>
-        </section>
+        {showFareTable && (
+          <section>
+            <h2 className="font-display text-xl font-semibold text-ink">Taxi Fare</h2>
+            <p className="mt-1 text-sm text-ink/60">
+              Comfortable, well-maintained cabs at transparent prices — pay what&apos;s shown, no surprise charges.
+            </p>
+            <div className="mt-5"><FareTable /></div>
+          </section>
+        )}
 
         <RouteDivider />
 
